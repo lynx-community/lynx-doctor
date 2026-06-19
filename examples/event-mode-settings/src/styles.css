@@ -1,0 +1,39 @@
+.page {
+  min-height: 100vh;
+  padding: 24px;
+  background: #fbfaf7;
+  color: #1d242b;
+}
+
+.pageDark {
+  background: #1d242b;
+  color: #ffffff;
+}
+
+.eyebrow {
+  color: #0d8f74;
+  font-size: 14px;
+}
+
+.headline {
+  margin-top: 12px;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.panel {
+  margin-top: 20px;
+  padding: 18px;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.panelTitle {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.panelCopy {
+  margin-top: 6px;
+  color: #52616f;
+}

@@ -1,0 +1,188 @@
+:root {
+  --rp-c-brand: #169b6b;
+  --rp-c-brand-light: #24bd83;
+  --rp-c-brand-dark: #0f6f50;
+  --rp-home-hero-name-background: linear-gradient(90deg, #1aa978, #3387ff);
+  --rp-c-bg: #fbfcf8;
+  --rp-c-bg-soft: #eef5ef;
+  --rp-c-text-1: #13201a;
+  --rp-c-text-2: #3b5448;
+}
+
+.dark {
+  --rp-c-brand: #35f0a0;
+  --rp-c-brand-light: #8bd7ff;
+  --rp-c-brand-dark: #24bd83;
+  --rp-c-bg: #07100d;
+  --rp-c-bg-soft: #0d1714;
+  --rp-c-text-1: #e9fff5;
+  --rp-c-text-2: #aec8bd;
+}
+
+.lynx-home {
+  min-height: calc(100vh - 72px);
+  padding: 48px 24px 72px;
+  background:
+    linear-gradient(180deg, rgba(53, 240, 160, 0.08), transparent 32%),
+    var(--rp-c-bg);
+}
+
+.lynx-home__inner {
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+.lynx-home__eyebrow {
+  margin: 0 0 12px;
+  color: var(--rp-c-brand);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.lynx-home__title {
+  max-width: 900px;
+  margin: 0;
+  color: var(--rp-c-text-1);
+  font-size: 64px;
+  line-height: 1.08;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+
+.lynx-home__subtitle {
+  max-width: 680px;
+  margin: 22px 0 0;
+  color: var(--rp-c-text-2);
+  font-size: 20px;
+  line-height: 1.55;
+}
+
+.lynx-home__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 28px 0 36px;
+}
+
+.lynx-home__button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 0 16px;
+  border: 1px solid rgba(22, 155, 107, 0.32);
+  border-radius: 6px;
+  background: var(--rp-c-brand);
+  color: #07100d;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.lynx-home__button--ghost {
+  background: transparent;
+  color: var(--rp-c-text-1);
+}
+
+.lynx-home__flow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 20px 0 28px;
+}
+
+.lynx-step {
+  border: 1px solid rgba(83, 121, 101, 0.24);
+  border-radius: 8px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.54);
+}
+
+.dark .lynx-step {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.lynx-step__number {
+  color: var(--rp-c-brand);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.lynx-step__title {
+  margin: 8px 0 6px;
+  color: var(--rp-c-text-1);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.lynx-step__copy {
+  margin: 0;
+  color: var(--rp-c-text-2);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.lynx-terminal {
+  overflow: hidden;
+  border: 1px solid rgba(83, 121, 101, 0.3);
+  border-radius: 8px;
+  background: #07100d;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.2);
+}
+
+.lynx-terminal__bar {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 10px 14px;
+  color: #8aa89b;
+  font-size: 13px;
+}
+
+.lynx-terminal pre {
+  overflow-x: auto;
+  margin: 0;
+  padding: 20px;
+  color: #d9fbe9;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.lynx-terminal .ok {
+  color: #35f0a0;
+}
+
+.lynx-terminal .warn {
+  color: #ffd166;
+}
+
+.lynx-terminal .err {
+  color: #ff6b6b;
+}
+
+.lynx-terminal .dim {
+  color: #789386;
+}
+
+@media (max-width: 820px) {
+  .lynx-home {
+    padding: 32px 18px 56px;
+  }
+
+  .lynx-home__flow {
+    grid-template-columns: 1fr;
+  }
+
+  .lynx-home__subtitle {
+    font-size: 17px;
+  }
+
+  .lynx-home__title {
+    font-size: 44px;
+    line-height: 1.08;
+  }
+}
+
+@media (max-width: 480px) {
+  .lynx-home__title {
+    font-size: 38px;
+  }
+}

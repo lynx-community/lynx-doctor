@@ -1,0 +1,53 @@
+{
+  "name": "lynx-doctor",
+  "version": "0.1.0",
+  "description": "A deterministic scanner and agent handoff CLI for Lynx and ReactLynx projects.",
+  "keywords": [
+    "agent",
+    "diagnostics",
+    "lynx",
+    "reactlynx",
+    "rspeedy",
+    "static-analysis"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "lynx-doctor": "./bin/lynx-doctor.js"
+  },
+  "files": [
+    "bin/**",
+    "dist/**"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./api": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "rslib build",
+    "dev": "rslib build --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "commander": "^15.0.0",
+    "fast-glob": "^3.3.3",
+    "jiti": "^2.7.0",
+    "picocolors": "^1.1.1"
+  },
+  "devDependencies": {
+    "@rslib/core": "^0.23.0",
+    "@types/node": "^26.0.0",
+    "typescript": "^6.0.3"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "sideEffects": false
+}

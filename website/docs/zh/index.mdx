@@ -1,0 +1,72 @@
+---
+title: Lynx Doctor
+description: 扫描 Lynx 项目、发现 ReactLynx 线程与配置问题，并生成可交给 agent 的修复提示。
+pageType: custom
+sidebar: false
+outline: false
+---
+
+<main className="lynx-home">
+  <div className="lynx-home__inner">
+    <p className="lynx-home__eyebrow">Lynx Doctor</p>
+    <h1 className="lynx-home__title">先诊断，再让 Agent 修。</h1>
+    <div className="lynx-home__subtitle">
+      一个面向 ReactLynx 的确定性扫描器：检查双线程边界、生命周期、main-thread 事件、Rspeedy 配置和 TypeScript 环境，然后把最高优先级问题整理成 agent 可以直接执行的修复提示。
+    </div>
+    <div className="lynx-home__actions">
+      <a className="lynx-home__button" href="/zh/guide/quickstart.html">快速开始</a>
+      <a className="lynx-home__button lynx-home__button--ghost" href="/zh/examples/index.html">示例项目</a>
+      <a className="lynx-home__button lynx-home__button--ghost" href="/zh/reference/cli.html">查看 CLI</a>
+    </div>
+
+    <section className="lynx-home__flow" aria-label="Lynx Doctor workflow">
+      <div className="lynx-step">
+        <div className="lynx-step__number">01</div>
+        <div className="lynx-step__title">扫描项目</div>
+        <p className="lynx-step__copy">在项目根目录运行 CLI，自动识别 ReactLynx、Rspeedy、TypeScript 和源码范围。</p>
+      </div>
+      <div className="lynx-step">
+        <div className="lynx-step__number">02</div>
+        <div className="lynx-step__title">发现问题</div>
+        <p className="lynx-step__copy">按 Threading、Lifecycle、Events、Performance 和 Configuration 分组输出可解释诊断。</p>
+      </div>
+      <div className="lynx-step">
+        <div className="lynx-step__number">03</div>
+        <div className="lynx-step__title">唤起 agent 修复</div>
+        <p className="lynx-step__copy">用 <code>--agent-prompt</code> 生成聚焦提示，或用 <code>--agent codex</code> 直接交给本地 agent。</p>
+      </div>
+    </section>
+
+    <div className="lynx-terminal" aria-label="Terminal preview">
+      <div className="lynx-terminal__bar">
+        <span>~/apps/lynx-shop</span>
+        <span>npx lynx-doctor@latest</span>
+      </div>
+      <pre><code>{`$ npx lynx-doctor@latest --diff --agent-prompt
+Lynx Doctor
+lynx-shop (ReactLynx)  38 files in 1.2s
+
+72/100 watch  2 errors, 3 warnings across 4 files
+
+Threading -> 1 errors
+Lifecycle -> 1 errors
+Configuration -> 2 warnings
+Performance -> 1 warnings
+
+ERROR reactlynx/background-only-api src/pages/Home.tsx:42:18
+  This native API call is not inside an obvious background-only context.
+  fix: Move the call into useEffect, an event handler, a ref callback, or a function whose first statement is 'background only'.
+
+ERROR reactlynx/avoid-use-layout-effect src/components/Measure.tsx:8:3
+  ReactLynx does not support React DOM style synchronous layout effects.
+  fix: Use useEffect for background side effects, or main-thread: layout events / refs for layout reads.
+
+---- Agent prompt ----
+Fix the top 2 Lynx Doctor issues in lynx-shop.
+1. ERROR reactlynx/background-only-api: Background-only API used from shared or render code
+   - src/pages/Home.tsx:42
+2. ERROR reactlynx/avoid-use-layout-effect: Avoid useLayoutEffect in ReactLynx
+   - src/components/Measure.tsx:8`}</code></pre>
+    </div>
+  </div>
+</main>

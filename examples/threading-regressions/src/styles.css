@@ -1,0 +1,45 @@
+.page {
+  min-height: 100vh;
+  padding: 24px;
+  background: #eef4f8;
+}
+
+.hero {
+  padding: 28px;
+  border-radius: 16px;
+  background: #243447;
+  color: #ffffff;
+}
+
+.eyebrow {
+  color: #9bd3ff;
+  font-size: 14px;
+}
+
+.headline {
+  margin-top: 12px;
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.cart {
+  margin-top: 20px;
+}
+
+.cartRow,
+.quantity {
+  margin-bottom: 12px;
+  padding: 18px;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.productTitle {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.productPrice {
+  margin-top: 6px;
+  color: #52616f;
+}

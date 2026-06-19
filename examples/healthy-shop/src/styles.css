@@ -1,0 +1,55 @@
+.page {
+  min-height: 100vh;
+  padding: 24px;
+  background: #f7f4ef;
+}
+
+.hero {
+  padding: 28px;
+  border-radius: 16px;
+  background: #17202a;
+  color: #ffffff;
+}
+
+.eyebrow {
+  color: #9ad4c2;
+  font-size: 14px;
+}
+
+.headline {
+  margin-top: 12px;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.promoRail,
+.productList {
+  margin-top: 20px;
+}
+
+.promoCard,
+.product {
+  margin-bottom: 12px;
+  padding: 18px;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.promoTitle,
+.productTitle {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.promoSubtitle,
+.productPrice,
+.loading {
+  margin-top: 6px;
+  color: #51606d;
+  font-size: 14px;
+}
+
+.productActive {
+  border-width: 2px;
+  border-color: #0d8f74;
+}
