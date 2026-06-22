@@ -15,9 +15,9 @@
 </p>
 
 <p align="center">
-  <img alt="Node.js >= 20.19.0" src="https://img.shields.io/badge/node-%3E%3D20.19.0-339933">
-  <img alt="pnpm >= 10" src="https://img.shields.io/badge/pnpm-%3E%3D10-F69220">
-  <img alt="License Apache 2.0" src="https://img.shields.io/badge/license-Apache%202.0-blue">
+  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/node-%3E%3D20.19.0-339933" alt="Node.js 20.19+" /></a>
+  <a href="https://pnpm.io/"><img src="https://img.shields.io/badge/pnpm-%3E%3D10-F69220" alt="pnpm 10+" /></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue" alt="Apache License 2.0" /></a>
 </p>
 
 Lynx Doctor 是面向 Lynx 项目的确定性扫描器与 Agent 交接 CLI。它会扫描项目中的 Lynx 专属风险，解释问题原因，并生成可交给 coding agent 的聚焦修复提示。

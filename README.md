@@ -15,9 +15,9 @@
 </p>
 
 <p align="center">
-  <img alt="Node.js >= 20.19.0" src="https://img.shields.io/badge/node-%3E%3D20.19.0-339933">
-  <img alt="pnpm >= 10" src="https://img.shields.io/badge/pnpm-%3E%3D10-F69220">
-  <img alt="License Apache 2.0" src="https://img.shields.io/badge/license-Apache%202.0-blue">
+  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/node-%3E%3D20.19.0-339933" alt="Node.js 20.19+" /></a>
+  <a href="https://pnpm.io/"><img src="https://img.shields.io/badge/pnpm-%3E%3D10-F69220" alt="pnpm 10+" /></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue" alt="Apache License 2.0" /></a>
 </p>
 
 Lynx Doctor is a deterministic scanner and agent handoff CLI for Lynx projects. It finds Lynx-specific risks, explains why they matter, and generates focused repair prompts for coding agents.
