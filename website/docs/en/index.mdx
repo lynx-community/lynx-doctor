@@ -6,18 +6,25 @@ sidebar: false
 outline: false
 ---
 
+import { LynxTerminalDemo } from "@rspress/core/theme";
+
 <main className="lynx-home">
   <div className="lynx-home__inner">
-    <p className="lynx-home__eyebrow">Lynx Doctor</p>
-    <h1 className="lynx-home__title">Diagnose before agents fix.</h1>
-    <div className="lynx-home__subtitle">
-      A deterministic scanner for Lynx projects: inspect dual-thread boundaries, lifecycle APIs, main-thread events, Rspeedy configuration, and TypeScript setup, then turn the highest-priority findings into prompts an agent can act on.
-    </div>
-    <div className="lynx-home__actions">
-      <a className="lynx-home__button" href="/guide/quickstart.html">Quickstart</a>
-      <a className="lynx-home__button lynx-home__button--ghost" href="/examples/index.html">Examples</a>
-      <a className="lynx-home__button lynx-home__button--ghost" href="/reference/cli.html">CLI Reference</a>
-    </div>
+    <section className="lynx-home__hero">
+      <div className="lynx-home__copy">
+        <p className="lynx-home__eyebrow">Lynx Doctor</p>
+        <h1 className="lynx-home__title">Diagnose before agents fix.</h1>
+        <div className="lynx-home__subtitle">
+          Scan Lynx projects, explain issues clearly, and hand focused fixes to agents.
+        </div>
+        <div className="lynx-home__actions">
+          <a className="lynx-home__button" href="/guide/quickstart.html">Quickstart</a>
+          <a className="lynx-home__button lynx-home__button--ghost" href="/examples/index.html">Examples</a>
+          <a className="lynx-home__button lynx-home__button--ghost" href="/reference/cli.html">CLI Reference</a>
+        </div>
+      </div>
+      <LynxTerminalDemo locale="en" />
+    </section>
 
     <section className="lynx-home__flow" aria-label="Lynx Doctor workflow">
       <div className="lynx-step">
@@ -36,37 +43,5 @@ outline: false
         <p className="lynx-step__copy">Use <code>--agent-prompt</code> to print a focused prompt, or <code>--agent codex</code> to hand it to a local agent.</p>
       </div>
     </section>
-
-    <div className="lynx-terminal" aria-label="Terminal preview">
-      <div className="lynx-terminal__bar">
-        <span>~/apps/lynx-shop</span>
-        <span>npx lynx-doctor@latest</span>
-      </div>
-      <pre><code>{`$ npx lynx-doctor@latest --diff --agent-prompt
-Lynx Doctor
-lynx-shop (ReactLynx)  38 files in 1.2s
-
-72/100 watch  2 errors, 3 warnings across 4 files
-
-Threading -> 1 errors
-Lifecycle -> 1 errors
-Configuration -> 2 warnings
-Performance -> 1 warnings
-
-ERROR reactlynx/background-only-api src/pages/Home.tsx:42:18
-  This native API call is not inside an obvious background-only context.
-  fix: Move the call into useEffect, an event handler, a ref callback, or a function whose first statement is 'background only'.
-
-ERROR reactlynx/avoid-use-layout-effect src/components/Measure.tsx:8:3
-  ReactLynx does not support React DOM style synchronous layout effects.
-  fix: Use useEffect for background side effects, or main-thread: layout events / refs for layout reads.
-
----- Agent prompt ----
-Fix the top 2 Lynx Doctor issues in lynx-shop.
-1. ERROR reactlynx/background-only-api: Background-only API used from shared or render code
-   - src/pages/Home.tsx:42
-2. ERROR reactlynx/avoid-use-layout-effect: Avoid useLayoutEffect in ReactLynx
-   - src/components/Measure.tsx:8`}</code></pre>
-    </div>
   </div>
 </main>
