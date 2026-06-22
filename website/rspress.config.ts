@@ -102,8 +102,11 @@ const enSidebar = {
   ]
 };
 
+const siteBase = process.env.RSPRESS_SITE_BASE ?? "/";
+
 export default defineConfig({
   root: "docs",
+  base: siteBase,
   title: "Lynx Doctor",
   description: "Scan Lynx projects, find Lynx-specific issues, and hand focused fixes to coding agents.",
   icon: "/favicon.svg",
