@@ -2,7 +2,7 @@
   "name": "@lynx-doctor-example/healthy-shop",
   "version": "0.1.0",
   "private": true,
-  "description": "A healthy Rspeedy and ReactLynx shopping example for Lynx Doctor scans.",
+  "description": "A healthy Lynx shopping example for Lynx Doctor scans.",
   "type": "module",
   "scripts": {
     "build": "rspeedy build",

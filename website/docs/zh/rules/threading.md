@@ -1,6 +1,6 @@
 ---
 title: 线程边界
-description: 解释 ReactLynx 双线程规则，避免在 render 或共享代码中调用 background-only Native API。
+description: 解释 Lynx 线程边界规则，避免在 render 或共享代码中调用 background-only Native API。
 ---
 
 # 线程边界

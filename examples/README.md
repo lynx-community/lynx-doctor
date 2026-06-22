@@ -1,6 +1,6 @@
 # Lynx Doctor Examples
 
-These examples are standalone Rspeedy + ReactLynx projects shaped after the public
+These examples are standalone Lynx projects shaped after the public
 `lynx-family/lynx-examples` packages and the Lynx Quick Start project layout.
 
 ## Projects

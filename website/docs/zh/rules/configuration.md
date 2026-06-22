@@ -1,6 +1,6 @@
 ---
 title: 配置规则
-description: 检查 ReactLynx TypeScript、globalPropsMode 和 lazy/Suspense 等项目配置问题。
+description: 检查 TypeScript、globalPropsMode 和 lazy/Suspense 等项目配置问题。
 ---
 
 # 配置规则
@@ -9,7 +9,7 @@ description: 检查 ReactLynx TypeScript、globalPropsMode 和 lazy/Suspense 等
 
 ## TypeScript
 
-ReactLynx 项目应配置：
+使用 ReactLynx 的 Lynx 项目应配置：
 
 ```json
 {

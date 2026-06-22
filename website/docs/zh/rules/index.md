@@ -1,6 +1,6 @@
 ---
 title: 规则概览
-description: Lynx Doctor 内置规则概览，覆盖 ReactLynx 线程边界、生命周期、事件、性能和配置问题。
+description: Lynx Doctor 内置规则概览，覆盖 Lynx 线程边界、生命周期、事件、性能和配置问题。
 ---
 
 # 规则概览

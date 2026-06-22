@@ -1,11 +1,11 @@
 ---
 title: 示例项目
-description: 扫描独立的 Rspeedy 与 ReactLynx 示例项目，体验健康项目、错误项目和 warning 项目的完整流程。
+description: 扫描独立的 Lynx 示例项目，体验健康项目、错误项目和 warning 项目的完整流程。
 ---
 
 # 示例项目
 
-仓库里的 `examples/` 目录包含几个独立的 Rspeedy + ReactLynx 项目。它们参考了公开的 [lynx-family/lynx-examples](https://github.com/lynx-family/lynx-examples) 包结构：每个项目都有 `package.json`、`lynx.config.ts`、`tsconfig.json`、`src/index.tsx` 和 ReactLynx `App`。
+仓库里的 `examples/` 目录包含几个独立的 Lynx 项目。它们参考了公开的 [lynx-family/lynx-examples](https://github.com/lynx-family/lynx-examples) 包结构：每个项目都有 `package.json`、`lynx.config.ts`、`tsconfig.json`、`src/index.tsx` 和 ReactLynx `App`。
 
 示例使用固定版本的 Lynx 依赖，而不是 workspace `catalog:` 范围，因此可以单独复制、安装和运行。项目结构也贴近 Lynx [Quick Start](https://lynxjs.org/next/guide/start/quick-start)，并使用 Rspeedy + `pluginReactLynx`。
 
@@ -36,7 +36,7 @@ npx lynx-doctor@latest examples/threading-regressions --agent-prompt --blocking 
 
 ## 运行项目
 
-每个示例都是一个真实的 Rspeedy app：
+每个示例都可以用 Rspeedy 运行：
 
 ```bash
 cd examples/healthy-shop

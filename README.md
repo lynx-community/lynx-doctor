@@ -1,12 +1,39 @@
-# Lynx Doctor
+<h1 align="center">Lynx Doctor</h1>
 
-Deterministic diagnostics and agent handoff for Lynx projects.
+<p align="center">
+  Diagnose Lynx projects before agents fix them.
+</p>
 
-Lynx Doctor scans a project, explains the highest-risk Lynx-specific issues, and turns the findings into focused repair prompts that a coding agent can act on.
+<p align="center">
+  <a href="./README.zh-CN.md">中文</a>
+  ·
+  <a href="./CONTRIBUTING.md">Contributing</a>
+  ·
+  <a href="./website/docs/en/index.mdx">Docs</a>
+  ·
+  <a href="./examples">Examples</a>
+</p>
+
+<p align="center">
+  <img alt="Node.js >= 20.19.0" src="https://img.shields.io/badge/node-%3E%3D20.19.0-339933">
+  <img alt="pnpm >= 10" src="https://img.shields.io/badge/pnpm-%3E%3D10-F69220">
+  <img alt="License Apache 2.0" src="https://img.shields.io/badge/license-Apache%202.0-blue">
+</p>
+
+Lynx Doctor is a deterministic scanner and agent handoff CLI for Lynx projects. It finds Lynx-specific risks, explains why they matter, and generates focused repair prompts for coding agents.
+
+## Highlights
+
+| Workflow | What Lynx Doctor gives you |
+| --- | --- |
+| Scan a project | A health score, grouped diagnostics, source locations, and fix guidance |
+| Review changed files | `--diff` and `--staged` scans for pull request workflows |
+| Hand off to agents | Focused prompts that describe the highest-priority issues and verification steps |
+| Install in CI | A package script, GitHub Actions workflow, and agent notes |
 
 ## Why
 
-ReactLynx projects have constraints that generic JavaScript linters do not understand:
+Lynx projects have constraints that generic JavaScript linters do not understand:
 
 - code can cross main-thread and background-thread boundaries
 - some Lynx APIs are background-only
@@ -18,7 +45,7 @@ Lynx Doctor makes those constraints visible before an agent starts editing code.
 
 ## Quick Start
 
-Run a scan from a Lynx or ReactLynx project root:
+Run a scan from a Lynx project root:
 
 ```bash
 npx lynx-doctor@latest
@@ -30,7 +57,7 @@ Scan only changed files:
 npx lynx-doctor@latest --diff
 ```
 
-Generate a repair prompt for a coding agent:
+Generate a repair prompt:
 
 ```bash
 npx lynx-doctor@latest --diff --agent-prompt
@@ -43,8 +70,6 @@ npx lynx-doctor@latest --diff --agent codex
 ```
 
 ## What It Checks
-
-Built-in rules currently cover:
 
 | Area | Examples |
 | --- | --- |
@@ -71,8 +96,6 @@ npx lynx-doctor@latest rules explain reactlynx/background-only-api
 ```bash
 lynx-doctor [directory] [options]
 ```
-
-Common options:
 
 | Option | Description |
 | --- | --- |
@@ -133,7 +156,7 @@ console.log(buildAgentPrompt(report));
 
 ## Examples
 
-The repository includes standalone Rspeedy + ReactLynx projects under `examples/`.
+The repository includes standalone Lynx projects under `examples/`.
 
 | Project | Purpose |
 | --- | --- |
@@ -141,8 +164,8 @@ The repository includes standalone Rspeedy + ReactLynx projects under `examples/
 | `examples/threading-regressions` | Intentional Threading, Lifecycle, and Events errors |
 | `examples/event-mode-settings` | Configuration and Performance warnings |
 
-See [CONTRIBUTION.md](./CONTRIBUTION.md) for local development, docs, and example validation.
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for local development, docs, and example validation.
 
 ## License
 
-MIT
+Apache License 2.0

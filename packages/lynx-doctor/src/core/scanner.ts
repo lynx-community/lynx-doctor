@@ -238,7 +238,7 @@ const checkProjectConfiguration = (project: ProjectInfo, diagnostics: Diagnostic
       filePath: "package.json",
       line: 1,
       message:
-        "This ReactLynx project does not declare @lynx-js/types, so Lynx globals and event types may be incomplete."
+        "This Lynx project does not declare @lynx-js/types, so Lynx globals and event types may be incomplete."
     });
   }
 

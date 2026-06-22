@@ -1,6 +1,6 @@
 ---
 title: CI Setup
-description: Add Lynx Doctor to GitHub Actions so every pull request scans changed files for new ReactLynx issues.
+description: Add Lynx Doctor to GitHub Actions so every pull request scans changed files for new Lynx-specific issues.
 ---
 
 # CI Setup

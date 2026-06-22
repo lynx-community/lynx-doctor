@@ -1,11 +1,11 @@
 ---
 title: Quickstart
-description: Run the first Lynx Doctor scan in a ReactLynx project and understand the score, findings, and next step.
+description: Run the first Lynx Doctor scan in a Lynx project and understand the score, findings, and next step.
 ---
 
 # Quickstart
 
-Run Lynx Doctor from the root of a Lynx or ReactLynx project:
+Run Lynx Doctor from the root of a Lynx project:
 
 ```bash
 npx lynx-doctor@latest

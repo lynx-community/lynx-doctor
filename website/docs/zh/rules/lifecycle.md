@@ -1,6 +1,6 @@
 ---
 title: 生命周期
-description: 说明为什么 ReactLynx 中不应使用 useLayoutEffect，以及布局读取应迁移到主线程事件或 ref。
+description: 说明为什么 Lynx 代码中不应使用 useLayoutEffect，以及布局读取应迁移到主线程事件或 ref。
 ---
 
 # 生命周期

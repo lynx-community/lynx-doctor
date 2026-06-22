@@ -1,7 +1,7 @@
 {
   "name": "lynx-doctor",
   "version": "0.1.0",
-  "description": "A deterministic scanner and agent handoff CLI for Lynx and ReactLynx projects.",
+  "description": "A deterministic scanner and agent handoff CLI for Lynx projects.",
   "keywords": [
     "agent",
     "diagnostics",
@@ -10,7 +10,7 @@
     "rspeedy",
     "static-analysis"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "type": "module",
   "bin": {
     "lynx-doctor": "./bin/lynx-doctor.js"

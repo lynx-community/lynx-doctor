@@ -1,6 +1,6 @@
 ---
 title: Lifecycle
-description: Why ReactLynx code should avoid useLayoutEffect and move layout reads to main-thread events or refs.
+description: Why Lynx code should avoid useLayoutEffect and move layout reads to main-thread events or refs.
 ---
 
 # Lifecycle

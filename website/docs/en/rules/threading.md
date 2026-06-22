@@ -1,6 +1,6 @@
 ---
 title: Threading
-description: ReactLynx threading rules that keep background-only Native APIs out of render and shared main-thread code paths.
+description: Lynx threading rules that keep background-only Native APIs out of render and shared main-thread code paths.
 ---
 
 # Threading

@@ -1,11 +1,11 @@
 ---
 title: Examples
-description: Scan standalone Rspeedy and ReactLynx example projects that demonstrate clean, error, and warning workflows.
+description: Scan standalone Lynx example projects that demonstrate clean, error, and warning workflows.
 ---
 
 # Examples
 
-The repository includes standalone Rspeedy + ReactLynx projects under `examples/`. They are shaped after the public [lynx-family/lynx-examples](https://github.com/lynx-family/lynx-examples) packages: each project has `package.json`, `lynx.config.ts`, `tsconfig.json`, `src/index.tsx`, and a ReactLynx `App`.
+The repository includes standalone Lynx projects under `examples/`. They are shaped after the public [lynx-family/lynx-examples](https://github.com/lynx-family/lynx-examples) packages: each project has `package.json`, `lynx.config.ts`, `tsconfig.json`, `src/index.tsx`, and a ReactLynx `App`.
 
 The examples use pinned Lynx package versions instead of workspace `catalog:` ranges, so each one can be copied or installed independently. The project shape follows the Lynx [Quick Start](https://lynxjs.org/next/guide/start/quick-start) and uses Rspeedy with `pluginReactLynx`.
 
@@ -36,7 +36,7 @@ npx lynx-doctor@latest examples/threading-regressions --agent-prompt --blocking 
 
 ## Run A Project
 
-Each example is a real Rspeedy app:
+Each example runs with Rspeedy:
 
 ```bash
 cd examples/healthy-shop

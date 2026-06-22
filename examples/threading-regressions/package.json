@@ -2,7 +2,7 @@
   "name": "@lynx-doctor-example/threading-regressions",
   "version": "0.1.0",
   "private": true,
-  "description": "A Rspeedy and ReactLynx app with intentional threading regressions for Lynx Doctor.",
+  "description": "A Lynx app with intentional threading regressions for Lynx Doctor.",
   "type": "module",
   "scripts": {
     "build": "rspeedy build",

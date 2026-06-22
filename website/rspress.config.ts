@@ -105,7 +105,7 @@ const enSidebar = {
 export default defineConfig({
   root: "docs",
   title: "Lynx Doctor",
-  description: "Scan Lynx projects, find ReactLynx issues, and hand focused fixes to coding agents.",
+  description: "Scan Lynx projects, find Lynx-specific issues, and hand focused fixes to coding agents.",
   icon: "/favicon.svg",
   logo: {
     light: "/favicon.svg",
@@ -117,13 +117,13 @@ export default defineConfig({
       lang: "en",
       label: "English",
       title: "Lynx Doctor",
-      description: "Scan Lynx projects, find ReactLynx issues, and hand focused fixes to coding agents."
+      description: "Scan Lynx projects, find Lynx-specific issues, and hand focused fixes to coding agents."
     },
     {
       lang: "zh",
       label: "简体中文",
       title: "Lynx Doctor",
-      description: "扫描 Lynx 项目，发现 ReactLynx 问题，并把修复交给 coding agent。"
+      description: "扫描 Lynx 项目，发现 Lynx 专属问题，并把修复交给 coding agent。"
     }
   ],
   themeConfig: {

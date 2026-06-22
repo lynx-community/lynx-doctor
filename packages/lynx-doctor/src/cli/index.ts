@@ -32,7 +32,7 @@ const parseBlocking = (value: string | undefined): BlockingLevel => {
 
 const program = new Command()
   .name("lynx-doctor")
-  .description("Scan Lynx and ReactLynx projects, then hand focused fixes to coding agents")
+  .description("Scan Lynx projects, then hand focused fixes to coding agents")
   .version(VERSION, "-v, --version", "print the installed version")
   .argument("[directory]", "project directory to scan", ".")
   .option("--verbose", "show every finding with source context")

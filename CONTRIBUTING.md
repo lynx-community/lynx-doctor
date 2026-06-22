@@ -1,11 +1,17 @@
 # Contribution Guide
 
+<p align="center">
+  <a href="./CONTRIBUTING.zh-CN.md">中文</a>
+  ·
+  <a href="./README.md">README</a>
+</p>
+
 Thanks for improving Lynx Doctor. This guide covers local development, documentation, examples, and verification.
 
 ## Requirements
 
 - Node.js >= 20.19.0
-- pnpm 10.x
+- pnpm >= 10
 
 Install workspace dependencies:
 
@@ -18,7 +24,7 @@ pnpm install
 ```text
 packages/lynx-doctor   CLI and Node API
 website/               Rspress documentation site
-examples/              Standalone Rspeedy + ReactLynx projects
+examples/              Standalone Lynx projects
 ```
 
 ## Development Commands
@@ -71,7 +77,7 @@ pnpm docs:build
 
 ## Examples
 
-The repository includes standalone Rspeedy + ReactLynx projects under `examples/`. They intentionally stay outside the root workspace so they can be installed and run independently.
+The repository includes standalone Lynx projects under `examples/`. They intentionally stay outside the root workspace so they can be installed and run independently.
 
 Run the local CLI against them:
 
@@ -82,7 +88,7 @@ node packages/lynx-doctor/dist/cli.js examples/threading-regressions --agent-pro
 node packages/lynx-doctor/dist/cli.js examples/event-mode-settings --verbose --blocking none
 ```
 
-Install and run one example as a real Rspeedy app:
+Install and run one example with Rspeedy:
 
 ```bash
 cd examples/healthy-shop

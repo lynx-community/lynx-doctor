@@ -2,7 +2,7 @@
   "name": "@lynx-doctor-example/event-mode-settings",
   "version": "0.1.0",
   "private": true,
-  "description": "A Rspeedy and ReactLynx settings app demonstrating globalPropsMode event warnings.",
+  "description": "A Lynx settings app demonstrating globalPropsMode event warnings.",
   "type": "module",
   "scripts": {
     "build": "rspeedy build",

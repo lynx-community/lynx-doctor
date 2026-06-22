@@ -1,6 +1,6 @@
 ---
 title: Lynx Doctor
-description: 扫描 Lynx 项目、发现 ReactLynx 线程与配置问题，并生成可交给 agent 的修复提示。
+description: 扫描 Lynx 项目、发现 Lynx 专属问题，并生成可交给 agent 的修复提示。
 pageType: custom
 sidebar: false
 outline: false
@@ -11,7 +11,7 @@ outline: false
     <p className="lynx-home__eyebrow">Lynx Doctor</p>
     <h1 className="lynx-home__title">先诊断，再让 Agent 修。</h1>
     <div className="lynx-home__subtitle">
-      一个面向 ReactLynx 的确定性扫描器：检查双线程边界、生命周期、main-thread 事件、Rspeedy 配置和 TypeScript 环境，然后把最高优先级问题整理成 agent 可以直接执行的修复提示。
+      一个面向 Lynx 项目的确定性扫描器：检查双线程边界、生命周期、main-thread 事件、Rspeedy 配置和 TypeScript 环境，然后把最高优先级问题整理成 agent 可以直接执行的修复提示。
     </div>
     <div className="lynx-home__actions">
       <a className="lynx-home__button" href="/zh/guide/quickstart.html">快速开始</a>
@@ -23,7 +23,7 @@ outline: false
       <div className="lynx-step">
         <div className="lynx-step__number">01</div>
         <div className="lynx-step__title">扫描项目</div>
-        <p className="lynx-step__copy">在项目根目录运行 CLI，自动识别 ReactLynx、Rspeedy、TypeScript 和源码范围。</p>
+        <p className="lynx-step__copy">在项目根目录运行 CLI，自动识别 Lynx 依赖、TypeScript 和源码范围。</p>
       </div>
       <div className="lynx-step">
         <div className="lynx-step__number">02</div>

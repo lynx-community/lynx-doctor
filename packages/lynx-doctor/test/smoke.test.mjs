@@ -13,7 +13,7 @@ const writeFile = (filePath, content) => {
   fs.writeFileSync(filePath, content);
 };
 
-test("scanProject reports core ReactLynx diagnostics and builds an agent prompt", async () => {
+test("scanProject reports core Lynx diagnostics and builds an agent prompt", async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "lynx-doctor-"));
   writeFile(
     path.join(root, "package.json"),
@@ -61,7 +61,7 @@ export function App() {
   assert.match(buildAgentPrompt(report), /Fix the top/);
 });
 
-test("repository examples are real Rspeedy ReactLynx projects with expected findings", async () => {
+test("repository examples are real Lynx projects with expected findings", async () => {
   const healthy = await scanProject({
     directory: path.join(repoRoot, "examples", "healthy-shop"),
     blocking: "none"

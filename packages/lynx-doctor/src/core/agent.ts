@@ -28,7 +28,7 @@ export const buildAgentPrompt = (report: ScanReport): string => {
     "1. Read the reported files before editing.",
     "2. Fix the root cause; do not silence rules unless the code truly cannot change.",
     "3. Re-run `npx lynx-doctor@latest --verbose` and confirm the finding is gone.",
-    "4. Explain what changed and why it matters for Lynx or ReactLynx.",
+    "4. Explain what changed and why it matters for Lynx.",
     ""
   ];
 

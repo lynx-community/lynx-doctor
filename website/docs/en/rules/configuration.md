@@ -1,6 +1,6 @@
 ---
 title: Configuration Rules
-description: Check ReactLynx TypeScript, globalPropsMode, and lazy/Suspense setup for project-level correctness.
+description: Check TypeScript, globalPropsMode, and lazy/Suspense setup for project-level correctness.
 ---
 
 # Configuration Rules
@@ -9,7 +9,7 @@ Configuration rules keep a project understandable to Lynx tooling and coding age
 
 ## TypeScript
 
-ReactLynx projects should configure:
+Lynx projects using ReactLynx should configure:
 
 ```json
 {

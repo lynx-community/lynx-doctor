@@ -1,6 +1,6 @@
 ---
 title: Rules Overview
-description: Overview of built-in Lynx Doctor rules for ReactLynx threading, lifecycle, events, performance, and configuration.
+description: Overview of built-in Lynx Doctor rules for Lynx threading, lifecycle, events, performance, and configuration.
 ---
 
 # Rules Overview

@@ -1,11 +1,11 @@
 ---
 title: 快速开始
-description: 从安装运行到读取分数和诊断，快速在 ReactLynx 项目里完成第一次 Lynx Doctor 扫描。
+description: 从安装运行到读取分数和诊断，快速在 Lynx 项目里完成第一次 Lynx Doctor 扫描。
 ---
 
 # 快速开始
 
-在 Lynx 或 ReactLynx 项目根目录运行：
+在 Lynx 项目根目录运行：
 
 ```bash
 npx lynx-doctor@latest
