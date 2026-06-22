@@ -8,12 +8,15 @@
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm --filter lynx-doctor test",
     "check": "pnpm build && pnpm typecheck && pnpm test",
+    "changeset": "changeset",
+    "release": "pnpm --filter lynx-doctor build && pnpm changeset publish",
     "dev": "pnpm --filter lynx-doctor dev",
     "docs:dev": "pnpm --filter @lynx-doctor/website dev",
     "docs:build": "pnpm --filter @lynx-doctor/website build",
     "docs:preview": "pnpm --filter @lynx-doctor/website preview"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.29.7",
     "@types/node": "^26.0.0",
     "typescript": "^6.0.3"
   },
