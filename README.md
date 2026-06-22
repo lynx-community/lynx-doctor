@@ -20,6 +20,10 @@
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue" alt="Apache License 2.0" /></a>
 </p>
 
+<p align="center">
+  <img src="./assets/readme-banner.svg" alt="Lynx Doctor banner: scan projects, clarify issues, and launch agents." width="100%" />
+</p>
+
 Lynx Doctor is a deterministic scanner and agent handoff CLI for Lynx projects. It finds Lynx-specific risks, explains why they matter, and generates focused repair prompts for coding agents.
 
 ## Highlights

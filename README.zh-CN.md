@@ -20,6 +20,10 @@
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue" alt="Apache License 2.0" /></a>
 </p>
 
+<p align="center">
+  <img src="./assets/readme-banner.zh-CN.svg" alt="Lynx Doctor banner：扫描项目、解释问题、交给 Agent 修复。" width="100%" />
+</p>
+
 Lynx Doctor 是面向 Lynx 项目的确定性扫描器与 Agent 交接 CLI。它会扫描项目中的 Lynx 专属风险，解释问题原因，并生成可交给 coding agent 的聚焦修复提示。
 
 ## 亮点
