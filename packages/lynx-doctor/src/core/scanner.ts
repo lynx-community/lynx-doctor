@@ -20,6 +20,7 @@ import type {
 const SOURCE_GLOBS = ["**/*.{ts,tsx,js,jsx,mts,cts,mjs,cjs}"];
 const SOURCE_EXTENSIONS = new Set([".ts", ".tsx", ".js", ".jsx", ".mts", ".cts", ".mjs", ".cjs"]);
 const DEFAULT_BLOCKING: BlockingLevel = "error";
+const LYNX_UI_GESTURE_COMPONENTS = ["Draggable", "Sheet", "Slider", "Sortable", "SwipeAction", "Swiper"];
 
 interface MutableDiagnosticInput {
   readonly ruleId: string;
@@ -37,6 +38,7 @@ interface FileContext {
   readonly content: string;
   readonly lines: readonly string[];
   readonly hasGlobalPropsEventMode: boolean;
+  readonly hasNewGestureEnabled: boolean;
 }
 
 const getRule = (ruleId: string): RuleDefinition => {
@@ -53,6 +55,7 @@ const addDiagnostic = (diagnostics: Diagnostic[], input: MutableDiagnosticInput)
     ruleId: rule.id,
     title: rule.title,
     category: rule.category,
+    subcategory: rule.subcategory,
     severity: rule.defaultSeverity,
     message: input.message,
     help: rule.fix,
@@ -61,6 +64,7 @@ const addDiagnostic = (diagnostics: Diagnostic[], input: MutableDiagnosticInput)
     column: input.column ?? 1,
     ...(input.sourceLine ? { sourceLine: input.sourceLine.trimEnd() } : {}),
     docsUrl: rule.docsUrl,
+    source: rule.source,
     tags: rule.tags
   });
 };
@@ -215,6 +219,112 @@ const checkLazyWithoutSuspense = (context: FileContext, diagnostics: Diagnostic[
   });
 };
 
+const checkLynxUiAggregateImports = (context: FileContext, diagnostics: Diagnostic[]): void => {
+  const packagePattern = /["'](@lynx-js\/lynx-ui-[^"']+)["']/g;
+  context.lines.forEach((line, index) => {
+    for (const match of line.matchAll(packagePattern)) {
+      const packageName = match[1];
+      if (!packageName) continue;
+      addDiagnostic(diagnostics, {
+        ruleId: "lynx-ui/prefer-public-aggregate-import",
+        filePath: context.relativePath,
+        line: index + 1,
+        column: (match.index ?? 0) + 2,
+        sourceLine: line,
+        message: `This file imports ${packageName} directly instead of using the public @lynx-js/lynx-ui entry.`
+      });
+    }
+  });
+};
+
+const importsLynxUiButton = (content: string): boolean =>
+  /import\s*{[^}]*\bButton\b[^}]*}\s*from\s*["']@lynx-js\/lynx-ui["']/.test(content) ||
+  /from\s*["']@lynx-js\/lynx-ui-button["']/.test(content);
+
+const checkLynxUiButtonHandlers = (context: FileContext, diagnostics: Diagnostic[]): void => {
+  if (!importsLynxUiButton(context.content)) return;
+  const nativeHandlerPattern = /<Button\b[^>]*\b(?:bind|catch)[\w-]*\s*=/g;
+  context.lines.forEach((line, index) => {
+    if (!nativeHandlerPattern.test(line)) return;
+    nativeHandlerPattern.lastIndex = 0;
+    addDiagnostic(diagnostics, {
+      ruleId: "lynx-ui/button-uses-on-click",
+      filePath: context.relativePath,
+      line: index + 1,
+      column: findColumn(line, nativeHandlerPattern),
+      sourceLine: line,
+      message: "This lynx-ui Button uses a native event attribute; the documented Button API exposes onClick."
+    });
+  });
+};
+
+const findLynxUiGestureImport = (lines: readonly string[]): { line: string; index: number; component: string } | null => {
+  const aggregateImportPattern = /import\s*{([^}]+)}\s*from\s*["']@lynx-js\/lynx-ui["']/;
+  const packageImportPattern = /@lynx-js\/lynx-ui-(draggable|sheet|slider|sortable|swipe-action|swiper)\b/;
+  for (const [index, line] of lines.entries()) {
+    const aggregateImport = aggregateImportPattern.exec(line);
+    if (aggregateImport) {
+      const importedNames = aggregateImport[1] ?? "";
+      const component = LYNX_UI_GESTURE_COMPONENTS.find((name) =>
+        new RegExp(`\\b${name}\\b`).test(importedNames),
+      );
+      if (component) return { line, index, component };
+    }
+    const packageImport = packageImportPattern.exec(line);
+    if (packageImport) {
+      return { line, index, component: packageImport[1] ?? "gesture component" };
+    }
+  }
+  return null;
+};
+
+const checkLynxUiGestureConfig = (context: FileContext, diagnostics: Diagnostic[]): void => {
+  if (context.hasNewGestureEnabled) return;
+  const gestureImport = findLynxUiGestureImport(context.lines);
+  if (!gestureImport) return;
+  addDiagnostic(diagnostics, {
+    ruleId: "lynx-ui/gesture-components-enable-new-gesture",
+    filePath: context.relativePath,
+    line: gestureImport.index + 1,
+    column: Math.max(1, gestureImport.line.indexOf(gestureImport.component) + 1),
+    sourceLine: gestureImport.line,
+    message: `This file imports ${gestureImport.component}, but the project config does not enable ReactLynx's new gesture system.`
+  });
+};
+
+const checkRspeedyExportStarBarrels = (context: FileContext, diagnostics: Diagnostic[]): void => {
+  const pattern = /^\s*export\s+\*\s+from\s+["'][^"']+["']/;
+  context.lines.forEach((line, index) => {
+    if (!pattern.test(line)) return;
+    addDiagnostic(diagnostics, {
+      ruleId: "rspeedy/no-export-star-barrels",
+      filePath: context.relativePath,
+      line: index + 1,
+      column: Math.max(1, line.search(/export\s+\*/) + 1),
+      sourceLine: line,
+      message:
+        "This export-star barrel can keep extra modules reachable and make rspeedy bundle tree-shaking less predictable."
+    });
+  });
+};
+
+const checkRspeedyEval = (context: FileContext, diagnostics: Diagnostic[]): void => {
+  const pattern = /\beval\s*\(/g;
+  context.lines.forEach((line, index) => {
+    if (!pattern.test(line)) return;
+    pattern.lastIndex = 0;
+    addDiagnostic(diagnostics, {
+      ruleId: "rspeedy/no-eval-in-bundle-code",
+      filePath: context.relativePath,
+      line: index + 1,
+      column: findColumn(line, pattern),
+      sourceLine: line,
+      message:
+        "eval() can poison production name mangling and leave readable module-prefixed names in rspeedy chunks."
+    });
+  });
+};
+
 const readTextIfExists = (filePath: string): string | null => {
   try {
     return fs.readFileSync(filePath, "utf8");
@@ -282,9 +392,16 @@ const hasGlobalPropsEventMode = (project: ProjectInfo): boolean =>
     return content !== null && /globalPropsMode\s*:\s*["']event["']/.test(content);
   });
 
+const hasNewGestureEnabled = (project: ProjectInfo): boolean =>
+  project.configFiles.some((filePath) => {
+    const content = readTextIfExists(filePath);
+    return content !== null && /enableNewGesture\s*:\s*true/.test(content);
+  });
+
 const isLynxSourceContext = (project: ProjectInfo, content: string): boolean =>
   project.hasReactLynx ||
   project.hasRspeedy ||
+  project.hasLynxUi ||
   /from\s+["']@lynx-js\//.test(content) ||
   /import\s+["']@lynx-js\//.test(content);
 
@@ -351,6 +468,7 @@ export const scanProject = async (options: ScanOptions = {}): Promise<ScanReport
   const scannedFiles = await listSourceFiles(project.rootDirectory, options, resolvedConfig.config);
   const diagnostics: Diagnostic[] = [];
   const eventMode = hasGlobalPropsEventMode(project);
+  const newGestureEnabled = hasNewGestureEnabled(project);
 
   checkProjectConfiguration(project, diagnostics);
 
@@ -362,7 +480,8 @@ export const scanProject = async (options: ScanOptions = {}): Promise<ScanReport
       relativePath: toPosixRelativePath(project.rootDirectory, filePath),
       content,
       lines: content.split(/\r?\n/g),
-      hasGlobalPropsEventMode: eventMode
+      hasGlobalPropsEventMode: eventMode,
+      hasNewGestureEnabled: newGestureEnabled
     };
     if (!isLynxSourceContext(project, content)) continue;
     checkBackgroundOnlyApi(context, diagnostics);
@@ -370,6 +489,13 @@ export const scanProject = async (options: ScanOptions = {}): Promise<ScanReport
     checkMainThreadHandlers(context, diagnostics);
     checkGlobalPropsEventMode(context, diagnostics);
     checkLazyWithoutSuspense(context, diagnostics);
+    checkLynxUiAggregateImports(context, diagnostics);
+    checkLynxUiButtonHandlers(context, diagnostics);
+    checkLynxUiGestureConfig(context, diagnostics);
+    if (project.hasRspeedy) {
+      checkRspeedyExportStarBarrels(context, diagnostics);
+      checkRspeedyEval(context, diagnostics);
+    }
   }
 
   const filteredDiagnostics = diagnostics

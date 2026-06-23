@@ -38,10 +38,9 @@ const AGENT_GUIDE = `# Lynx Doctor Agent Notes
 
 When Lynx Doctor reports findings, fix the highest severity rules first:
 
-- Threading: keep lynx.getJSModule and NativeModules in background-only contexts.
-- Lifecycle: do not use useLayoutEffect in ReactLynx.
-- Events: main-thread:* handlers need a top-level 'main thread' directive.
-- Configuration: globalPropsMode: 'event' requires explicit useGlobalPropsChanged subscriptions.
+- reactlynx: fix thread-boundary, lifecycle, main-thread handler, global props, lazy-loading, and TypeScript findings first.
+- lynx-ui: verify public imports, documented component APIs, and gesture configuration before changing component behavior.
+- rspeedy: measure bundle-size findings before changing code, then remove structural blockers such as barrels or eval.
 
 After changing code, re-run:
 

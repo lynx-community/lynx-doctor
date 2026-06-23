@@ -77,11 +77,9 @@ npx lynx-doctor@latest --diff --agent codex
 
 | Area | Examples |
 | --- | --- |
-| Threading | `lynx.getJSModule` and `NativeModules` outside obvious background-only contexts |
-| Lifecycle | `useLayoutEffect` in ReactLynx code |
-| Events | `main-thread:*` handlers missing a top-level `"main thread"` directive |
-| Configuration | missing `@lynx-js/types`, incomplete `jsxImportSource`, `globalPropsMode: "event"` direct reads |
-| Performance | `lazy()` without a nearby `Suspense` boundary |
+| reactlynx | thread boundaries, lifecycle behavior, main-thread handlers, `globalPropsMode`, lazy loading, and TypeScript setup |
+| lynx-ui | public component imports, documented component APIs, and gesture configuration |
+| rspeedy | bundle-size hazards such as export-star barrels and `eval()` |
 
 List rules:
 
@@ -103,12 +101,12 @@ lynx-doctor [directory] [options]
 
 | Option | Description |
 | --- | --- |
-| `--verbose` | Show every diagnostic with source context |
+| `--verbose` | Show every diagnostic with source context, docs, and skill source |
 | `--json` | Output a structured scan report |
 | `--score` | Print only the numeric health score |
 | `--diff [base]` | Scan files changed against a base ref |
 | `--staged` | Scan only staged files |
-| `--category <category>` | Show one category, repeatable |
+| `--category <category>` | Show one category, repeatable: `reactlynx`, `lynx-ui`, or `rspeedy` |
 | `--no-warnings` | Hide warning-severity diagnostics |
 | `--blocking <level>` | Fail threshold: `error`, `warning`, or `none` |
 | `--agent-prompt` | Print a focused agent repair prompt |
@@ -135,7 +133,7 @@ export default defineConfig({
     "reactlynx/lazy-without-suspense": "warning"
   },
   categories: {
-    Performance: "off"
+    "lynx-ui": "off"
   },
   agent: {
     command: "codex"
@@ -165,8 +163,8 @@ The repository includes standalone Lynx projects under `examples/`.
 | Project | Purpose |
 | --- | --- |
 | `examples/healthy-shop` | A clean project that should scan at `100/100` |
-| `examples/threading-regressions` | Intentional Threading, Lifecycle, and Events errors |
-| `examples/event-mode-settings` | Configuration and Performance warnings |
+| `examples/threading-regressions` | Intentional `reactlynx` threading, lifecycle, and event errors |
+| `examples/event-mode-settings` | `reactlynx` configuration and lazy-loading warnings |
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for local development, docs, and example validation.
 

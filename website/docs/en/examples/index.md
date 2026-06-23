@@ -14,8 +14,8 @@ The examples use pinned Lynx package versions instead of workspace `catalog:` ra
 | Project | What it models | Expected scan |
 | --- | --- | --- |
 | `examples/healthy-shop` | A small storefront with a safe native analytics call, a main-thread gesture handler, and a lazy promo rail wrapped in `Suspense`. | `100/100`, no diagnostics |
-| `examples/threading-regressions` | A checkout screen with a render-time native module call, `useLayoutEffect`, and a `main-thread:` handler without a directive. | 3 errors across Threading, Lifecycle, and Events |
-| `examples/event-mode-settings` | A settings screen using `globalPropsMode: "event"` while reading `lynx.__globalProps` directly and rendering a lazy component without `Suspense`. | 2 warnings across Configuration and Performance |
+| `examples/threading-regressions` | A checkout screen with a render-time native module call, `useLayoutEffect`, and a `main-thread:` handler without a directive. | 3 `reactlynx` errors |
+| `examples/event-mode-settings` | A settings screen using `globalPropsMode: "event"` while reading `lynx.__globalProps` directly and rendering a lazy component without `Suspense`. | 2 `reactlynx` warnings |
 
 ## Scan The Examples
 

@@ -42,7 +42,7 @@ const program = new Command()
   .option("--staged", "scan only staged files")
   .addOption(new Option("--diff [base]", "scan files changed against a base ref").default(false))
   .addOption(
-    new Option("--category <category>", "only show one category; repeat to include more").argParser(
+    new Option("--category <category>", "only show one category: reactlynx, lynx-ui, or rspeedy; repeat to include more").argParser(
       collectCategory,
     ),
   )
@@ -58,7 +58,7 @@ Examples:
   $ lynx-doctor
   $ lynx-doctor ./apps/mobile --verbose
   $ lynx-doctor --diff origin/main --agent-prompt
-  $ lynx-doctor --category Threading --json
+  $ lynx-doctor --category reactlynx --json
   $ lynx-doctor install
 `,
   );
@@ -139,8 +139,12 @@ rules
       const categoryRules = RULES.filter((rule) => rule.category === category);
       if (categoryRules.length === 0) continue;
       process.stdout.write(`${pc.bold(category)}\n`);
-      for (const rule of categoryRules) {
-        process.stdout.write(`  ${rule.defaultSeverity.toUpperCase()} ${rule.id} - ${rule.title}\n`);
+      const subcategories = [...new Set(categoryRules.map((rule) => rule.subcategory))];
+      for (const subcategory of subcategories) {
+        process.stdout.write(`  ${pc.dim(subcategory)}\n`);
+        for (const rule of categoryRules.filter((candidate) => candidate.subcategory === subcategory)) {
+          process.stdout.write(`    ${rule.defaultSeverity.toUpperCase()} ${rule.id} - ${rule.title}\n`);
+        }
       }
     }
   });
@@ -163,10 +167,12 @@ rules
     process.stdout.write(`${pc.bold(rule.id)}\n`);
     process.stdout.write(`${rule.title}\n\n`);
     process.stdout.write(`Category: ${rule.category}\n`);
+    process.stdout.write(`Subcategory: ${rule.subcategory}\n`);
     process.stdout.write(`Severity: ${rule.defaultSeverity}\n\n`);
     process.stdout.write(`${rule.why}\n\n`);
     process.stdout.write(`Fix: ${rule.fix}\n`);
     process.stdout.write(`Docs: ${rule.docsUrl}\n`);
+    process.stdout.write(`Source: ${rule.source.skill} (${rule.source.protocol})\n`);
   });
 
 program.parseAsync(process.argv).catch((error: unknown) => {

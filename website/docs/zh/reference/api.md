@@ -25,3 +25,4 @@ console.log(buildAgentPrompt(report));
 - `buildAgentPrompt(report)`：生成 agent 修复提示
 - `installLynxDoctor(options)`：写入 workflow、script 和 agent notes
 - `defineConfig(config)`：为配置文件提供类型提示
+- `RULES`：查看内置规则、一级分类、二级分类、文档 URL 和 skill source metadata

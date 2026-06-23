@@ -77,11 +77,9 @@ npx lynx-doctor@latest --diff --agent codex
 
 | 分类 | 示例 |
 | --- | --- |
-| 线程边界 | 在非 background-only 上下文中调用 `lynx.getJSModule` 或 `NativeModules` |
-| 生命周期 | ReactLynx 代码中使用 `useLayoutEffect` |
-| 事件 | `main-thread:*` handler 缺少顶层 `"main thread"` directive |
-| 配置 | 缺少 `@lynx-js/types`、`jsxImportSource` 不完整、`globalPropsMode: "event"` 下直接读取 global props |
-| 性能 | 使用 `lazy()` 但缺少就近的 `Suspense` 边界 |
+| reactlynx | 线程边界、生命周期、main-thread handler、`globalPropsMode`、lazy loading 和 TypeScript 设置 |
+| lynx-ui | 公共组件 import、文档化组件 API 和手势配置 |
+| rspeedy | `export *` barrel 和 `eval()` 等包体积风险 |
 
 查看规则：
 
@@ -103,12 +101,12 @@ lynx-doctor [directory] [options]
 
 | 参数 | 说明 |
 | --- | --- |
-| `--verbose` | 展示每条诊断的源码上下文 |
+| `--verbose` | 展示每条诊断的源码上下文、文档和 skill source |
 | `--json` | 输出结构化扫描报告 |
 | `--score` | 只输出数字健康分 |
 | `--diff [base]` | 扫描相对 base 变化的文件 |
 | `--staged` | 只扫描 staged 文件 |
-| `--category <category>` | 只展示某个分类，可重复 |
+| `--category <category>` | 只展示某个分类，可重复：`reactlynx`、`lynx-ui` 或 `rspeedy` |
 | `--no-warnings` | 隐藏 warning 级别诊断 |
 | `--blocking <level>` | 设置失败阈值：`error`、`warning` 或 `none` |
 | `--agent-prompt` | 打印聚焦的 Agent 修复 prompt |
@@ -135,7 +133,7 @@ export default defineConfig({
     "reactlynx/lazy-without-suspense": "warning"
   },
   categories: {
-    Performance: "off"
+    "lynx-ui": "off"
   },
   agent: {
     command: "codex"
@@ -165,8 +163,8 @@ console.log(buildAgentPrompt(report));
 | 项目 | 用途 |
 | --- | --- |
 | `examples/healthy-shop` | 健康项目，预期扫描结果为 `100/100` |
-| `examples/threading-regressions` | 故意包含 Threading、Lifecycle 和 Events 错误 |
-| `examples/event-mode-settings` | 演示 Configuration 和 Performance warning |
+| `examples/threading-regressions` | 故意包含 `reactlynx` 线程、生命周期和事件错误 |
+| `examples/event-mode-settings` | 演示 `reactlynx` 配置和 lazy-loading warning |
 
 本地开发、文档站和示例验证请参考 [CONTRIBUTING.zh-CN.md](./CONTRIBUTING.zh-CN.md)。
 

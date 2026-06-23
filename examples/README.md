@@ -8,8 +8,8 @@ These examples are standalone Lynx projects shaped after the public
 | Project | Purpose | Expected Lynx Doctor result |
 | --- | --- | --- |
 | `healthy-shop` | A small product storefront with safe background and main-thread boundaries. | No diagnostics. |
-| `threading-regressions` | A realistic product page with common threading and lifecycle mistakes. | Threading, lifecycle, and event errors. |
-| `event-mode-settings` | A settings page using `globalPropsMode: "event"` with stale global-props and lazy-loading warnings. | Configuration and performance warnings. |
+| `threading-regressions` | A realistic product page with common threading and lifecycle mistakes. | `reactlynx` errors. |
+| `event-mode-settings` | A settings page using `globalPropsMode: "event"` with stale global-props and lazy-loading warnings. | `reactlynx` warnings. |
 
 ## Scan locally
 
