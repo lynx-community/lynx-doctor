@@ -1,6 +1,6 @@
 {
   "name": "lynx-doctor",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "A deterministic scanner and agent handoff CLI for Lynx projects.",
   "keywords": [
     "agent",
@@ -12,28 +12,46 @@
   ],
   "license": "Apache-2.0",
   "type": "module",
+  "homepage": "https://github.com/lynx-community/lynx-doctor#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lynx-community/lynx-doctor.git",
+    "directory": "packages/lynx-doctor"
+  },
+  "bugs": {
+    "url": "https://github.com/lynx-community/lynx-doctor/issues"
+  },
   "bin": {
-    "lynx-doctor": "./bin/lynx-doctor.js"
+    "lynx-doctor": "bin/lynx-doctor.js"
   },
   "files": [
     "bin/**",
-    "dist/**"
+    "dist/**",
+    "README.md"
   ],
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
     "./api": {
       "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
       "default": "./dist/index.js"
     }
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
     "build": "rslib build",
     "dev": "rslib build --watch",
     "typecheck": "tsc --noEmit",
-    "test": "node --test test/*.test.mjs"
+    "test": "node --test test/*.test.mjs",
+    "publish:check": "pnpm build && publint && attw --pack . --profile esm-only && npm pack --dry-run --json"
   },
   "dependencies": {
     "commander": "^15.0.0",
@@ -42,12 +60,14 @@
     "picocolors": "^1.1.1"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.4",
     "@rslib/core": "^0.23.0",
     "@types/node": "^26.0.0",
+    "publint": "^0.3.21",
     "typescript": "^6.0.3"
   },
   "engines": {
-    "node": ">=20.19.0"
+    "node": ">=22.12.0"
   },
   "sideEffects": false
 }
