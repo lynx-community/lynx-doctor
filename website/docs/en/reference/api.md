@@ -25,3 +25,4 @@ Main exports:
 - `buildAgentPrompt(report)`: generate an agent repair prompt
 - `installLynxDoctor(options)`: write workflow, script, and agent notes
 - `defineConfig(config)`: add type hints to config files
+- `RULES`: inspect built-in rules, categories, subcategories, docs URLs, and skill source metadata

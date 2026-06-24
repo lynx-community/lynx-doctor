@@ -80,6 +80,9 @@ export const discoverProject = async (directory: string): Promise<ProjectInfo> =
   const dependencies = collectDependencies(packageJson);
   const dependencyNames = new Set(Object.keys(dependencies));
   const hasReactLynx = dependencyNames.has("@lynx-js/react");
+  const hasLynxUi = [...dependencyNames].some(
+    (dependencyName) => dependencyName === "@lynx-js/lynx-ui" || dependencyName.startsWith("@lynx-js/lynx-ui-"),
+  );
   const hasRspeedy =
     dependencyNames.has("@lynx-js/rspeedy") ||
     dependencyNames.has("@rspeedy/core") ||
@@ -100,6 +103,7 @@ export const discoverProject = async (directory: string): Promise<ProjectInfo> =
     framework,
     hasReactLynx,
     hasRspeedy,
+    hasLynxUi,
     hasLynxTypes,
     hasTypeScript: fs.existsSync(path.join(rootDirectory, "tsconfig.json")),
     sourceFileCount: sourceFiles.length,

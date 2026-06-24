@@ -25,4 +25,4 @@ npx lynx-doctor@latest --diff
 npx lynx-doctor@latest --diff --agent-prompt
 ```
 
-第一轮建议先修 `Threading` 和 `Lifecycle` 的 error，再处理配置类 warning。修完后重新运行 `npx lynx-doctor@latest --verbose`，确认问题确实消失。
+第一轮建议先修 `reactlynx` 的 error，再处理低风险 warning。修完后重新运行 `npx lynx-doctor@latest --verbose`，确认问题确实消失。

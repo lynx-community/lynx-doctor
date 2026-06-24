@@ -18,7 +18,7 @@ export default defineConfig({
     "reactlynx/lazy-without-suspense": "warning"
   },
   categories: {
-    Performance: "off"
+    "lynx-ui": "off"
   },
   agent: {
     command: "codex"
@@ -29,5 +29,5 @@ export default defineConfig({
 Command-line flags override run options from config files:
 
 ```bash
-npx lynx-doctor@latest --category Threading --json
+npx lynx-doctor@latest --category reactlynx --json
 ```

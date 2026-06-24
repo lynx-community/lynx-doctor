@@ -54,9 +54,9 @@ const zhSidebar = {
       text: "规则",
       items: [
         { text: "概览", link: "/zh/rules/" },
-        { text: "线程边界", link: "/zh/rules/threading" },
-        { text: "生命周期", link: "/zh/rules/lifecycle" },
-        { text: "配置", link: "/zh/rules/configuration" }
+        { text: "reactlynx", link: "/zh/rules/reactlynx" },
+        { text: "lynx-ui", link: "/zh/rules/lynx-ui" },
+        { text: "rspeedy", link: "/zh/rules/rspeedy" }
       ]
     }
   ]
@@ -94,9 +94,9 @@ const enSidebar = {
       text: "Rules",
       items: [
         { text: "Overview", link: "/rules/" },
-        { text: "Threading", link: "/rules/threading" },
-        { text: "Lifecycle", link: "/rules/lifecycle" },
-        { text: "Configuration", link: "/rules/configuration" }
+        { text: "reactlynx", link: "/rules/reactlynx" },
+        { text: "lynx-ui", link: "/rules/lynx-ui" },
+        { text: "rspeedy", link: "/rules/rspeedy" }
       ]
     }
   ]

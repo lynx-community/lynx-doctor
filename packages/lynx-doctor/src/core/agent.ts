@@ -36,9 +36,11 @@ export const buildAgentPrompt = (report: ScanReport): string => {
     const first = diagnostics[0];
     if (!first) return;
     lines.push(`${index + 1}. ${first.severity.toUpperCase()} ${ruleId}: ${first.title}`);
+    lines.push(`   Category: ${first.category}/${first.subcategory}`);
     lines.push(`   ${first.message}`);
     lines.push(`   Fix recipe: ${first.help}`);
     lines.push(`   Docs: ${first.docsUrl}`);
+    lines.push(`   Source skill: ${first.source.skill}/${first.source.docsPath}`);
     const seenFiles = new Set<string>();
     for (const diagnostic of diagnostics) {
       if (seenFiles.has(diagnostic.filePath)) continue;

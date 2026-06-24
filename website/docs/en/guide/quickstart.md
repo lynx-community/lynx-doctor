@@ -25,4 +25,4 @@ Generate a repair prompt for an agent:
 npx lynx-doctor@latest --diff --agent-prompt
 ```
 
-For the first pass, fix `Threading` and `Lifecycle` errors before lower-risk warnings. After editing, re-run `npx lynx-doctor@latest --verbose` and confirm the finding is gone.
+For the first pass, fix `reactlynx` errors before lower-risk warnings. After editing, re-run `npx lynx-doctor@latest --verbose` and confirm the finding is gone.

@@ -15,7 +15,7 @@ Common commands:
 npx lynx-doctor@latest
 npx lynx-doctor@latest --verbose
 npx lynx-doctor@latest --diff origin/main
-npx lynx-doctor@latest --category Threading --json
+npx lynx-doctor@latest --category reactlynx --json
 npx lynx-doctor@latest --agent-prompt
 npx lynx-doctor@latest install
 ```
@@ -24,13 +24,13 @@ Options:
 
 | Option | Description |
 | --- | --- |
-| `--verbose` | Show every diagnostic with source context and documentation links |
+| `--verbose` | Show every diagnostic with source context, documentation links, and skill source |
 | `--json` | Output a structured JSON report |
 | `--json-compact` | Emit compact JSON with `--json` |
 | `--score` | Output only the numeric score |
 | `--diff [base]` | Scan files changed against a base ref |
 | `--staged` | Scan files staged in the git index |
-| `--category <category>` | Show one category, repeatable |
+| `--category <category>` | Show one category, repeatable: `reactlynx`, `lynx-ui`, or `rspeedy` |
 | `--no-warnings` | Hide warnings and show errors only |
 | `--blocking <level>` | Set the failing threshold: `error`, `warning`, or `none` |
 | `--agent-prompt` | Print a repair prompt for a coding agent |

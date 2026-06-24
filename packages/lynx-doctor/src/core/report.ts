@@ -40,11 +40,19 @@ const formatDiagnostic = (diagnostic: Diagnostic, verbose: boolean): string[] =>
   const location = `${diagnostic.filePath}:${diagnostic.line}:${diagnostic.column}`;
   const lines = [
     `  ${colorSeverity(diagnostic, diagnostic.severity.toUpperCase())} ${pc.bold(diagnostic.ruleId)} ${pc.dim(location)}`,
+    `    ${diagnostic.category}/${diagnostic.subcategory}`,
     `    ${diagnostic.message}`,
     `    fix: ${diagnostic.help}`
   ];
   if (verbose && diagnostic.sourceLine) lines.push(pc.dim(`    > ${diagnostic.sourceLine.trim()}`));
   if (verbose) lines.push(pc.dim(`    docs: ${diagnostic.docsUrl}`));
+  if (verbose) {
+    lines.push(
+      pc.dim(
+        `    source: ${diagnostic.source.skill}/${diagnostic.source.docsPath} (${diagnostic.source.protocol})`,
+      ),
+    );
+  }
   return lines;
 };
 
@@ -78,10 +86,11 @@ export const formatReport = (report: ScanReport, options: FormatReportOptions = 
   for (const [category, diagnostics] of byCategory.entries() as IterableIterator<[Category, Diagnostic[]]>) {
     const errorCount = diagnostics.filter((diagnostic) => diagnostic.severity === "error").length;
     const warningCount = diagnostics.length - errorCount;
+    const subcategories = [...new Set(diagnostics.map((diagnostic) => diagnostic.subcategory))].join(", ");
     lines.push(
       `${pc.bold(category)} ${pc.dim("->")} ${errorCount ? pc.red(`${errorCount} errors`) : ""}${
         errorCount && warningCount ? pc.dim(", ") : ""
-      }${warningCount ? pc.yellow(`${warningCount} warnings`) : ""}`,
+      }${warningCount ? pc.yellow(`${warningCount} warnings`) : ""}${pc.dim(` (${subcategories})`)}`,
     );
   }
 

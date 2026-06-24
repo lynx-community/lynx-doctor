@@ -18,7 +18,7 @@ export default defineConfig({
     "reactlynx/lazy-without-suspense": "warning"
   },
   categories: {
-    Performance: "off"
+    "lynx-ui": "off"
   },
   agent: {
     command: "codex"
@@ -29,5 +29,5 @@ export default defineConfig({
 命令行参数会覆盖配置文件中的运行选项，例如：
 
 ```bash
-npx lynx-doctor@latest --category Threading --json
+npx lynx-doctor@latest --category reactlynx --json
 ```

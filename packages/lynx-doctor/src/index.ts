@@ -10,9 +10,11 @@ export {
   type LynxDoctorConfig,
   type ProjectInfo,
   type RuleDefinition,
+  type RuleSource,
   type ScanOptions,
   type ScanReport,
-  type Severity
+  type Severity,
+  type Subcategory
 } from "./core/types.js";
 export { scanProject } from "./core/scanner.js";
 export { formatReport, formatScore } from "./core/report.js";
