@@ -39,6 +39,22 @@ const writeFile = (filePath, content) => {
   fs.writeFileSync(filePath, content);
 };
 
+const writeNodeCommand = (directory, name, source) => {
+  const scriptPath = path.join(directory, `${name}.cjs`);
+  writeFile(scriptPath, source);
+
+  if (process.platform === "win32") {
+    const commandPath = path.join(directory, `${name}.cmd`);
+    writeFile(commandPath, `@echo off\r\n"${process.execPath}" "${scriptPath}" %*\r\n`);
+    return commandPath;
+  }
+
+  const commandPath = path.join(directory, name);
+  writeFile(commandPath, `#!/bin/sh\nexec "${process.execPath}" "${scriptPath}" "$@"\n`);
+  fs.chmodSync(commandPath, 0o755);
+  return commandPath;
+};
+
 test("rules list prints a readable terminal summary and keeps JSON output", () => {
   const output = runCli(["rules", "list"]);
   const categoryCount = new Set(RULES.map((rule) => rule.category)).size;
@@ -67,10 +83,10 @@ test("launchAgent uses non-interactive codex handoff and reports failed agents",
   const binDirectory = path.join(root, "bin");
   const codexLogPath = path.join(root, "codex-log.json");
   fs.mkdirSync(binDirectory);
-  const codexPath = path.join(binDirectory, "codex");
-  writeFile(
-    codexPath,
-    `#!/usr/bin/env node
+  writeNodeCommand(
+    binDirectory,
+    "codex",
+    `
 const fs = require("node:fs");
 let input = "";
 process.stdin.setEncoding("utf8");
@@ -89,7 +105,6 @@ process.stdin.on("end", () => {
 });
 `,
   );
-  fs.chmodSync(codexPath, 0o755);
 
   const originalPath = process.env.PATH;
   const originalLogPath = process.env.LYNX_DOCTOR_AGENT_LOG;
@@ -109,9 +124,7 @@ process.stdin.on("end", () => {
   assert.equal(codexLog.stdin, "Fix the Lynx warnings.");
   assert.equal(codexLog.isTTY, false);
 
-  const failingAgentPath = path.join(root, "failing-agent");
-  writeFile(failingAgentPath, "#!/usr/bin/env node\nprocess.exit(7);\n");
-  fs.chmodSync(failingAgentPath, 0o755);
+  const failingAgentPath = writeNodeCommand(root, "failing-agent", "process.exit(7);\n");
   await assert.rejects(() => launchAgent(failingAgentPath, "prompt", root), /exited with code 7/);
 });
 

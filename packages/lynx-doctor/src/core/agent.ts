@@ -83,6 +83,7 @@ export const launchAgent = async (
     const resolvedAgent = resolveAgentCommand(agent);
     const child = spawn(resolvedAgent.command, resolvedAgent.args, {
       cwd,
+      shell: process.platform === "win32",
       stdio: ["pipe", "inherit", "inherit"]
     });
     child.on("error", reject);
