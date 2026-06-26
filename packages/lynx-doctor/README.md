@@ -24,6 +24,9 @@ Generate a repair prompt:
 npx lynx-doctor@latest --diff --agent-prompt
 ```
 
+When diagnostics are found in an interactive terminal, Lynx Doctor offers an
+arrow-key menu to launch Codex, launch Claude, print the prompt, or skip.
+
 ## Node API
 
 ```ts

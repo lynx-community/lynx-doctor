@@ -54,6 +54,7 @@
     "publish:check": "pnpm build && publint && attw --pack . --profile esm-only && npm pack --dry-run --json"
   },
   "dependencies": {
+    "@clack/prompts": "^1.6.0",
     "commander": "^15.0.0",
     "fast-glob": "^3.3.3",
     "jiti": "^2.7.0",

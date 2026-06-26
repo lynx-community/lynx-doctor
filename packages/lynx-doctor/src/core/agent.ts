@@ -59,12 +59,20 @@ export const buildAgentPrompt = (report: ScanReport): string => {
   return lines.join("\n");
 };
 
-const resolveAgentCommand = (agent: string): string => {
-  if (agent === "codex") return "codex";
-  if (agent === "claude") return "claude";
-  if (agent === "cursor") return "cursor";
-  return agent;
+type ResolvedAgentCommand = {
+  readonly command: string;
+  readonly args: readonly string[];
 };
+
+const resolveAgentCommand = (agent: string): ResolvedAgentCommand => {
+  if (agent === "codex") return { command: "codex", args: ["exec", "-"] };
+  if (agent === "claude") return { command: "claude", args: ["-p"] };
+  if (agent === "cursor") return { command: "cursor", args: [] };
+  return { command: agent, args: [] };
+};
+
+const formatAgentCommand = ({ command, args }: ResolvedAgentCommand): string =>
+  [command, ...args].join(" ");
 
 export const launchAgent = async (
   agent: string,
@@ -72,11 +80,22 @@ export const launchAgent = async (
   cwd: string,
 ): Promise<number | null> =>
   new Promise((resolve, reject) => {
-    const child = spawn(resolveAgentCommand(agent), [], {
+    const resolvedAgent = resolveAgentCommand(agent);
+    const child = spawn(resolvedAgent.command, resolvedAgent.args, {
       cwd,
       stdio: ["pipe", "inherit", "inherit"]
     });
     child.on("error", reject);
-    child.on("close", (code) => resolve(code));
+    child.stdin.on("error", (error: NodeJS.ErrnoException) => {
+      if (error.code !== "EPIPE") reject(error);
+    });
+    child.on("close", (code, signal) => {
+      if (code === 0) {
+        resolve(code);
+        return;
+      }
+      const reason = code === null ? `terminated by signal ${signal ?? "unknown"}` : `exited with code ${code}`;
+      reject(new Error(`${formatAgentCommand(resolvedAgent)} ${reason}`));
+    });
     child.stdin.end(prompt);
   });

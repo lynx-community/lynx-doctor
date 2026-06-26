@@ -1,17 +1,127 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import { buildAgentPrompt, scanProject } from "../dist/index.js";
+import { buildAgentPrompt, launchAgent, RULES, scanProject } from "../dist/index.js";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
+const cliPath = path.join(repoRoot, "packages", "lynx-doctor", "bin", "lynx-doctor.js");
+
+const runCli = (args) =>
+  execFileSync(process.execPath, [cliPath, ...args], {
+    cwd: repoRoot,
+    encoding: "utf8",
+    env: {
+      ...process.env,
+      FORCE_COLOR: "0",
+      NO_COLOR: "1"
+    }
+  });
+
+const pluralize = (count, singular, plural = `${singular}s`) => `${count} ${count === 1 ? singular : plural}`;
+
+const formatRuleSummary = (rules) => {
+  const errorCount = rules.filter((rule) => rule.defaultSeverity === "error").length;
+  const warningCount = rules.filter((rule) => rule.defaultSeverity === "warning").length;
+  return [
+    pluralize(rules.length, "rule"),
+    [errorCount > 0 ? pluralize(errorCount, "error") : "", warningCount > 0 ? pluralize(warningCount, "warning") : ""]
+      .filter(Boolean)
+      .join(", ")
+  ].join(": ");
+};
 
 const writeFile = (filePath, content) => {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   fs.writeFileSync(filePath, content);
 };
+
+test("rules list prints a readable terminal summary and keeps JSON output", () => {
+  const output = runCli(["rules", "list"]);
+  const categoryCount = new Set(RULES.map((rule) => rule.category)).size;
+  const errorCount = RULES.filter((rule) => rule.defaultSeverity === "error").length;
+  const warningCount = RULES.filter((rule) => rule.defaultSeverity === "warning").length;
+
+  assert.match(output, /^Lynx Doctor rules/m);
+  assert.match(
+    output,
+    new RegExp(`${RULES.length} rules across ${categoryCount} categories: ${errorCount} errors, ${warningCount} warnings`),
+  );
+  assert.match(output, new RegExp(`reactlynx \\(${formatRuleSummary(RULES.filter((rule) => rule.category === "reactlynx"))}\\)`));
+  assert.match(output, /ERROR\s+reactlynx\/background-only-api/);
+  assert.match(output, /Use "lynx-doctor rules explain <rule-id>" for details\./);
+
+  const jsonRules = JSON.parse(runCli(["rules", "list", "--json"]));
+  assert.equal(jsonRules.length, RULES.length);
+  assert.equal(jsonRules[0].id, RULES[0].id);
+
+  const jsonRule = JSON.parse(runCli(["rules", "explain", RULES[0].id, "--json"]));
+  assert.equal(jsonRule.id, RULES[0].id);
+});
+
+test("launchAgent uses non-interactive codex handoff and reports failed agents", async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "lynx-doctor-agent-"));
+  const binDirectory = path.join(root, "bin");
+  const codexLogPath = path.join(root, "codex-log.json");
+  fs.mkdirSync(binDirectory);
+  const codexPath = path.join(binDirectory, "codex");
+  writeFile(
+    codexPath,
+    `#!/usr/bin/env node
+const fs = require("node:fs");
+let input = "";
+process.stdin.setEncoding("utf8");
+process.stdin.on("data", (chunk) => {
+  input += chunk;
+});
+process.stdin.on("end", () => {
+  fs.writeFileSync(
+    process.env.LYNX_DOCTOR_AGENT_LOG,
+    JSON.stringify({
+      argv: process.argv.slice(2),
+      stdin: input,
+      isTTY: Boolean(process.stdin.isTTY)
+    }),
+  );
+});
+`,
+  );
+  fs.chmodSync(codexPath, 0o755);
+
+  const originalPath = process.env.PATH;
+  const originalLogPath = process.env.LYNX_DOCTOR_AGENT_LOG;
+  process.env.PATH = `${binDirectory}${path.delimiter}${originalPath ?? ""}`;
+  process.env.LYNX_DOCTOR_AGENT_LOG = codexLogPath;
+  try {
+    await launchAgent("codex", "Fix the Lynx warnings.", root);
+  } finally {
+    if (originalPath === undefined) delete process.env.PATH;
+    else process.env.PATH = originalPath;
+    if (originalLogPath === undefined) delete process.env.LYNX_DOCTOR_AGENT_LOG;
+    else process.env.LYNX_DOCTOR_AGENT_LOG = originalLogPath;
+  }
+
+  const codexLog = JSON.parse(fs.readFileSync(codexLogPath, "utf8"));
+  assert.deepEqual(codexLog.argv, ["exec", "-"]);
+  assert.equal(codexLog.stdin, "Fix the Lynx warnings.");
+  assert.equal(codexLog.isTTY, false);
+
+  const failingAgentPath = path.join(root, "failing-agent");
+  writeFile(failingAgentPath, "#!/usr/bin/env node\nprocess.exit(7);\n");
+  fs.chmodSync(failingAgentPath, 0o755);
+  await assert.rejects(() => launchAgent(failingAgentPath, "prompt", root), /exited with code 7/);
+});
+
+test("plain CLI skips interactive agent selection when stdout is not a TTY", () => {
+  const output = runCli(["examples/event-mode-settings", "--blocking", "none"]);
+
+  assert.match(output, /90\/100 healthy/);
+  assert.match(output, /Use --agent-prompt to hand the top findings to a coding agent\./);
+  assert.doesNotMatch(output, /Hand off these findings\?/);
+});
 
 test("scanProject reports core Lynx diagnostics and builds an agent prompt", async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "lynx-doctor-"));

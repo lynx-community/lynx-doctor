@@ -3,6 +3,7 @@ import type { Category, Diagnostic, ScanReport } from "./types.js";
 
 export interface FormatReportOptions {
   readonly verbose?: boolean;
+  readonly showAgentPromptHint?: boolean;
 }
 
 const scoreLabel = (score: number): string => {
@@ -111,7 +112,9 @@ export const formatReport = (report: ScanReport, options: FormatReportOptions = 
       ? pc.green(`Passes current blocking policy (${report.blocking}).`)
       : pc.red(`Fails current blocking policy (${report.blocking}).`),
   );
-  lines.push(pc.dim("Use --agent-prompt to hand the top findings to a coding agent."));
+  if (options.showAgentPromptHint !== false) {
+    lines.push(pc.dim("Use --agent-prompt to hand the top findings to a coding agent."));
+  }
   return lines.join("\n");
 };
 

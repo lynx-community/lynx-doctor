@@ -20,6 +20,9 @@ npx lynx-doctor@latest --agent-prompt
 npx lynx-doctor@latest install
 ```
 
+如果在交互式终端中发现诊断结果，Lynx Doctor 会在扫描后弹出可用方向键选择的 coding agent 菜单。
+`--json`、`--score` 和非 TTY 输出不会弹出交互提示。
+
 选项：
 
 | 选项 | 说明 |
@@ -35,3 +38,4 @@ npx lynx-doctor@latest install
 | `--blocking <level>` | 设置失败阈值：`error`、`warning`、`none` |
 | `--agent-prompt` | 打印可交给 agent 的修复提示 |
 | `--agent <command>` | 启动本地 agent 命令并把提示写入 stdin |
+| `--no-agent-select` | 关闭扫描后的交互式 agent 选择 |

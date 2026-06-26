@@ -20,6 +20,10 @@ npx lynx-doctor@latest --agent-prompt
 npx lynx-doctor@latest install
 ```
 
+When diagnostics are found in an interactive terminal, Lynx Doctor prompts you
+to choose a coding agent with an arrow-key menu after the scan. Machine-readable
+modes such as `--json`, `--score`, and non-TTY output do not prompt.
+
 Options:
 
 | Option | Description |
@@ -35,3 +39,4 @@ Options:
 | `--blocking <level>` | Set the failing threshold: `error`, `warning`, or `none` |
 | `--agent-prompt` | Print a repair prompt for a coding agent |
 | `--agent <command>` | Launch a local agent command and pipe the prompt to stdin |
+| `--no-agent-select` | Disable the interactive agent selection prompt |

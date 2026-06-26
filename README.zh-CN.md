@@ -24,7 +24,7 @@
   <img src="./assets/readme-banner.zh-CN.svg" alt="Lynx Doctor banner：扫描项目、解释问题、交给 Agent 修复。" width="100%" />
 </p>
 
-Lynx Doctor 是面向 Lynx 项目的确定性扫描器与 Agent 交接 CLI。它会扫描项目中的 Lynx 专属风险，解释问题原因，并生成可交给 coding agent 的聚焦修复提示。
+Lynx Doctor 会先帮你扫出 Lynx 项目里的专属风险，再把问题原因、源码位置和修复方向整理成 Coding Agent 能直接接手的 Prompt。它的检查结果稳定可复现，适合在本地开发、PR 和 CI 中反复运行。
 
 ## 亮点
 
@@ -73,6 +73,8 @@ npx lynx-doctor@latest --diff --agent-prompt
 npx lynx-doctor@latest --diff --agent codex
 ```
 
+如果在交互式终端中发现诊断结果，Lynx Doctor 也会在扫描后给出可用方向键选择的 Agent 菜单。
+
 ## 检查范围
 
 | 分类 | 示例 |
@@ -111,6 +113,7 @@ lynx-doctor [directory] [options]
 | `--blocking <level>` | 设置失败阈值：`error`、`warning` 或 `none` |
 | `--agent-prompt` | 打印聚焦的 Agent 修复 prompt |
 | `--agent <command>` | 把修复 prompt 传给本地 Agent 命令 |
+| `--no-agent-select` | 关闭扫描后的交互式 Agent 选择 |
 
 安装 CI 和 agent notes：
 

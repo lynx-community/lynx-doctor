@@ -73,6 +73,9 @@ Launch a local agent command directly:
 npx lynx-doctor@latest --diff --agent codex
 ```
 
+When diagnostics are found in an interactive terminal, Lynx Doctor also offers
+an arrow-key agent selection prompt after the scan.
+
 ## What It Checks
 
 | Area | Examples |
@@ -111,6 +114,7 @@ lynx-doctor [directory] [options]
 | `--blocking <level>` | Fail threshold: `error`, `warning`, or `none` |
 | `--agent-prompt` | Print a focused agent repair prompt |
 | `--agent <command>` | Pipe the repair prompt to a local agent command |
+| `--no-agent-select` | Disable the interactive agent selection prompt |
 
 Install CI and agent notes:
 
