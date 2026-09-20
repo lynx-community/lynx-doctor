@@ -33,7 +33,8 @@ npx lynx-doctor@latest install
 | `--score` | 只输出数字分数 |
 | `--diff [base]` | 只扫描相对 base 变化的文件 |
 | `--staged` | 只扫描 git index 中 staged 文件 |
-| `--category <category>` | 只展示某个分类，可重复：`reactlynx`、`lynx-ui` 或 `rspeedy` |
+| `--package` | 构建后检查组件库入口是否对应实际产物 |
+| `--category <category>` | 只展示某个分类，可重复：`reactlynx`、`lynx-ui`、`rspeedy` 或 `lynx-css` |
 | `--no-warnings` | 隐藏 warning，只看 error |
 | `--blocking <level>` | 设置失败阈值：`error`、`warning`、`none` |
 | `--agent-prompt` | 打印可交给 agent 的修复提示 |

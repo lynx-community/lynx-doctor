@@ -4,6 +4,8 @@ import fg from "fast-glob";
 import picomatch from "picomatch";
 import ts from "typescript";
 import { analyzeSource, checkThreadSyntax, type SourceAnalysis } from "./syntax.js";
+import { checkElementSyntax } from "./elements.js";
+import { checkLibrary } from "./library.js";
 import { checkCss, CSS_DATA_VERSION } from "./css.js";
 import { readCompilerOptions } from "./typescript-config.js";
 import { RULE_BY_ID } from "../rules/catalog.js";
@@ -128,27 +130,6 @@ const checkLynxUiAggregateImports = (context: FileContext, diagnostics: Diagnost
         message: `This file imports ${packageName} directly instead of using the public @lynx-js/lynx-ui entry.`
       });
     }
-  });
-};
-
-const importsLynxUiButton = (content: string): boolean =>
-  /import\s*{[^}]*\bButton\b[^}]*}\s*from\s*["']@lynx-js\/lynx-ui["']/.test(content) ||
-  /from\s*["']@lynx-js\/lynx-ui-button["']/.test(content);
-
-const checkLynxUiButtonHandlers = (context: FileContext, diagnostics: Diagnostic[]): void => {
-  if (!importsLynxUiButton(context.content)) return;
-  const nativeHandlerPattern = /<Button\b[^>]*\b(?:bind|catch)[\w-]*\s*=/g;
-  context.lines.forEach((line, index) => {
-    if (!nativeHandlerPattern.test(line)) return;
-    nativeHandlerPattern.lastIndex = 0;
-    addDiagnostic(diagnostics, {
-      ruleId: "lynx-ui/button-uses-on-click",
-      filePath: context.relativePath,
-      line: index + 1,
-      column: findColumn(line, nativeHandlerPattern),
-      sourceLine: line,
-      message: "This lynx-ui Button uses a native event attribute; the documented Button API exposes onClick."
-    });
   });
 };
 
@@ -364,6 +345,9 @@ const listSourceFiles = async (
 };
 
 export const scanProject = async (options: ScanOptions = {}): Promise<ScanReport> => {
+  if (options.package && (options.diff || options.staged)) {
+    throw new Error("--package checks working-tree build artifacts; run it separately from --diff or --staged.");
+  }
   const startedAt = Date.now();
   const rootDirectory = path.resolve(options.directory ?? ".");
   const project = await discoverProject(rootDirectory);
@@ -375,6 +359,8 @@ export const scanProject = async (options: ScanOptions = {}): Promise<ScanReport
   const newGestureEnabled = hasNewGestureEnabled(project);
 
   checkProjectConfiguration(project, diagnostics);
+  const library = checkLibrary(project, options.package === true);
+  for (const finding of library.findings) addDiagnostic(diagnostics, { ...finding, filePath: "package.json" });
   const targets = resolvedConfig.config.targets ?? {};
   const cssSelected = (!options.categories?.length || options.categories.some((category) => normalizeCategory(category) === "lynx-css")) &&
     resolvedConfig.config.categories?.["lynx-css"] !== "off";
@@ -410,7 +396,7 @@ export const scanProject = async (options: ScanOptions = {}): Promise<ScanReport
     }
     const analysis = analyzeSource(filePath, content);
     if (!isLynxSourceContext(project, analysis)) continue;
-    for (const finding of checkThreadSyntax(analysis)) {
+    for (const finding of [...checkThreadSyntax(analysis), ...checkElementSyntax(analysis)]) {
       const position = analysis.file.getLineAndCharacterOfPosition(finding.node.getStart(analysis.file));
       addDiagnostic(diagnostics, {
         ruleId: finding.ruleId,
@@ -424,7 +410,6 @@ export const scanProject = async (options: ScanOptions = {}): Promise<ScanReport
     checkGlobalPropsEventMode(context, diagnostics);
     checkLazyWithoutSuspense(context, diagnostics);
     checkLynxUiAggregateImports(context, diagnostics);
-    checkLynxUiButtonHandlers(context, diagnostics);
     checkLynxUiGestureConfig(context, diagnostics);
     if (project.hasRspeedy) {
       checkRspeedyExportStarBarrels(context, diagnostics);
@@ -460,6 +445,7 @@ export const scanProject = async (options: ScanOptions = {}): Promise<ScanReport
     blocking,
     cssCoverage: { status: cssStatus, dataVersion: CSS_DATA_VERSION, targets, files: cssFiles, declarations: cssDeclarations, unknownComparisons: cssUnknown },
     notices: [
+      ...library.notices,
       ...(cssFiles && cssStatus === "not-configured" ? ["CSS compatibility was not checked: configure targets with minimum Lynx engine versions."] : []),
       ...(cssUnknown ? [`CSS compatibility data is unknown for ${cssUnknown} property/feature and target comparisons; these are not classified as supported or unsupported.`] : [])
     ]

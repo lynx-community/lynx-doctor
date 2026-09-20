@@ -26,3 +26,5 @@ Main exports:
 - `installLynxDoctor(options)`: write workflow, script, and agent notes
 - `defineConfig(config)`: add type hints to config files
 - `RULES`: inspect built-in rules, categories, subcategories, docs URLs, and skill source metadata
+
+For an existing component library build, pass `package: true` to `scanProject`. This option cannot be combined with `diff` or `staged`. CSS configuration is available through `CssTargets`, and `ScanReport.cssCoverage` records coverage.
