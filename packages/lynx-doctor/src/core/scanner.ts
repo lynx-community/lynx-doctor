@@ -1,10 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import fg from "fast-glob";
+import picomatch from "picomatch";
 import { RULE_BY_ID } from "../rules/catalog.js";
 import { resolveConfig } from "./config.js";
 import { DEFAULT_IGNORE_PATTERNS, discoverProject } from "./project.js";
-import { listChangedFiles, toPosixRelativePath } from "./git.js";
+import { listChangedFiles, readWorkingFile, toPosixRelativePath, type SourceSelection } from "./git.js";
 import type {
   BlockingLevel,
   Category,
@@ -18,7 +19,6 @@ import type {
 } from "./types.js";
 
 const SOURCE_GLOBS = ["**/*.{ts,tsx,js,jsx,mts,cts,mjs,cjs}"];
-const SOURCE_EXTENSIONS = new Set([".ts", ".tsx", ".js", ".jsx", ".mts", ".cts", ".mjs", ".cjs"]);
 const DEFAULT_BLOCKING: BlockingLevel = "error";
 const LYNX_UI_GESTURE_COMPONENTS = ["Draggable", "Sheet", "Slider", "Sortable", "SwipeAction", "Swiper"];
 
@@ -441,14 +441,19 @@ const listSourceFiles = async (
   rootDirectory: string,
   options: ScanOptions,
   config: LynxDoctorConfig,
-): Promise<string[]> => {
+): Promise<SourceSelection> => {
   const ignore = [...DEFAULT_IGNORE_PATTERNS, ...(config.ignore?.files ?? [])];
   const changedFiles = listChangedFiles(rootDirectory, options);
   if (changedFiles !== null) {
-    return changedFiles
-      .filter((filePath) => SOURCE_EXTENSIONS.has(path.extname(filePath)))
-      .map((filePath) => path.resolve(rootDirectory, filePath))
-      .filter((filePath) => fs.existsSync(filePath));
+    const isSource = picomatch(SOURCE_GLOBS);
+    const isIgnored = picomatch(ignore, { dot: true });
+    return {
+      files: changedFiles.files.filter((filePath) => {
+        const relative = toPosixRelativePath(rootDirectory, filePath);
+        return isSource(relative) && !isIgnored(relative);
+      }),
+      readFile: changedFiles.readFile
+    };
   }
 
   const files = await fg(SOURCE_GLOBS, {
@@ -457,7 +462,7 @@ const listSourceFiles = async (
     onlyFiles: true,
     ignore
   });
-  return files.sort();
+  return { files: files.sort(), readFile: readWorkingFile };
 };
 
 export const scanProject = async (options: ScanOptions = {}): Promise<ScanReport> => {
@@ -465,15 +470,18 @@ export const scanProject = async (options: ScanOptions = {}): Promise<ScanReport
   const rootDirectory = path.resolve(options.directory ?? ".");
   const project = await discoverProject(rootDirectory);
   const resolvedConfig = await resolveConfig(project.rootDirectory);
-  const scannedFiles = await listSourceFiles(project.rootDirectory, options, resolvedConfig.config);
+  const selection = await listSourceFiles(project.rootDirectory, options, resolvedConfig.config);
+  const scannedFiles: string[] = [];
   const diagnostics: Diagnostic[] = [];
   const eventMode = hasGlobalPropsEventMode(project);
   const newGestureEnabled = hasNewGestureEnabled(project);
 
   checkProjectConfiguration(project, diagnostics);
 
-  for (const filePath of scannedFiles) {
-    const content = fs.readFileSync(filePath, "utf8");
+  for (const filePath of selection.files) {
+    const content = selection.readFile(filePath);
+    if (content === null) continue;
+    scannedFiles.push(filePath);
     const context: FileContext = {
       rootDirectory: project.rootDirectory,
       filePath,

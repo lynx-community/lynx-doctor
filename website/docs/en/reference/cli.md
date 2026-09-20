@@ -40,3 +40,9 @@ Options:
 | `--agent-prompt` | Print a repair prompt for a coding agent |
 | `--agent <command>` | Launch a local agent command and pipe the prompt to stdin |
 | `--no-agent-select` | Disable the interactive agent selection prompt |
+
+## Incremental scan scope
+
+--diff combines branch changes from the merge base with staged, unstaged, and untracked files. Supply the actual PR target as the base when it is not main or master. Both incremental modes respect the same file ignores and package boundary as a full scan. Deleted files are skipped.
+
+--staged reads source content from the Git index, including staged files removed from the working tree. Project dependencies and configuration are read from the working tree. Use one incremental mode at a time. An invalid base or a directory outside Git is an error; it does not silently turn into a full scan.
