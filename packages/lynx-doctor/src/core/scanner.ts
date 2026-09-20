@@ -365,6 +365,7 @@ export const scanProject = async (options: ScanOptions = {}): Promise<ScanReport
   const cssSelected = (!options.categories?.length || options.categories.some((category) => normalizeCategory(category) === "lynx-css")) &&
     resolvedConfig.config.categories?.["lynx-css"] !== "off";
   const cssStatus: CssCoverage["status"] = !cssSelected ? "disabled" : Object.keys(targets).length ? "checked" : "not-configured";
+  let applicableSourceFiles = 0;
   let cssFiles = 0;
   let cssDeclarations = 0;
   let cssUnknown = 0;
@@ -385,6 +386,7 @@ export const scanProject = async (options: ScanOptions = {}): Promise<ScanReport
     if (filePath.endsWith(".css")) {
       cssFiles++;
       if (cssStatus === "checked") {
+        applicableSourceFiles++;
         const result = checkCss(filePath, content, targets);
         cssDeclarations += result.declarations;
         cssUnknown += result.unknownComparisons;
@@ -396,6 +398,7 @@ export const scanProject = async (options: ScanOptions = {}): Promise<ScanReport
     }
     const analysis = analyzeSource(filePath, content);
     if (!isLynxSourceContext(project, analysis)) continue;
+    applicableSourceFiles++;
     for (const finding of [...checkThreadSyntax(analysis), ...checkElementSyntax(analysis)]) {
       const position = analysis.file.getLineAndCharacterOfPosition(finding.node.getStart(analysis.file));
       addDiagnostic(diagnostics, {
@@ -443,6 +446,7 @@ export const scanProject = async (options: ScanOptions = {}): Promise<ScanReport
       ruleCount: affectedRules.size
     },
     blocking,
+    scope: { mode: options.staged ? "staged" : options.diff ? "diff" : "full", ...(typeof options.diff === "string" ? { base: options.diff } : {}), applicableSourceFiles },
     cssCoverage: { status: cssStatus, dataVersion: CSS_DATA_VERSION, targets, files: cssFiles, declarations: cssDeclarations, unknownComparisons: cssUnknown },
     notices: [
       ...library.notices,

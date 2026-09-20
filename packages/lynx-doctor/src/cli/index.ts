@@ -1,6 +1,7 @@
 import { isCancel, select } from "@clack/prompts";
 import { Command, Option } from "commander";
 import pc from "picocolors";
+import { resolveConfig } from "../core/config.js";
 import {
   buildAgentPrompt,
   CATEGORIES,
@@ -13,6 +14,7 @@ import {
   VERSION,
   type BlockingLevel,
   type RuleDefinition,
+  type ScanOptions,
   type Severity
 } from "../index.js";
 
@@ -141,14 +143,16 @@ const printAgentPrompt = (prompt: string): void => {
   process.stdout.write(`\n${pc.dim("---- Agent prompt ----")}\n${prompt}\n`);
 };
 
-const launchAgentOrPrintPrompt = async (agent: string, prompt: string, cwd: string): Promise<void> => {
+const launchAgentOrPrintPrompt = async (agent: string, prompt: string, cwd: string): Promise<boolean> => {
   try {
     await launchAgent(agent, prompt, cwd);
+    return true;
   } catch (error) {
     process.stderr.write(
-      `${pc.yellow("Could not launch agent; printing prompt instead.")}\n${String(error)}\n\n`,
+      `${pc.yellow("Agent handoff failed; printing the repair prompt.")}\n${String(error)}\n\n`,
     );
     process.stdout.write(`${prompt}\n`);
+    return false;
   }
 };
 
@@ -213,7 +217,7 @@ const program = new Command()
   .option("--no-warnings", "hide warning-severity diagnostics")
   .option("--blocking <level>", "severity that fails the run: error, warning, none", "error")
   .option("--agent-prompt", "print a prompt for a coding agent after the scan")
-  .option("--agent <command>", "launch an agent command and pipe the prompt to stdin")
+  .option("--agent [command]", "launch an agent, then verify; defaults to agent.command in config or codex")
   .option("--no-agent-select", "do not offer an interactive agent selection after the scan")
   .showHelpAfterError()
   .addHelpText(
@@ -229,12 +233,16 @@ Examples:
   );
 
 program.action(async (directory: string, options: Record<string, unknown>) => {
+  if ((options.json || options.score) && (options.agent || options.agentPrompt)) {
+    throw new Error("--agent and --agent-prompt require text output; run them separately from --json or --score.");
+  }
+  if (options.json && options.score) throw new Error("Choose either --json or --score.");
   const shouldSelectAgentInteractively = canSelectAgentInteractively(options);
   const shouldShowAgentPromptHint =
     !options.agent && !options.agentPrompt && !shouldSelectAgentInteractively;
   const diff = parseDiff(options.diff as string | boolean | undefined);
   const categories = options.category as string[] | undefined;
-  const report = await scanProject({
+  const scanOptions: ScanOptions = {
     directory,
     verbose: Boolean(options.verbose),
     staged: Boolean(options.staged),
@@ -243,7 +251,8 @@ program.action(async (directory: string, options: Record<string, unknown>) => {
     ...(categories ? { categories } : {}),
     includeWarnings: options.warnings !== false,
     blocking: parseBlocking(options.blocking as string | undefined)
-  });
+  };
+  let report = await scanProject(scanOptions);
 
   if (options.score) {
     process.stdout.write(`${formatScore(report)}\n`);
@@ -258,16 +267,32 @@ program.action(async (directory: string, options: Record<string, unknown>) => {
     );
   }
 
+  let agentFailed = false;
+  const handoffAndVerify = async (command: string, prompt: string): Promise<void> => {
+    if (!command.trim()) throw new Error("Agent command must not be empty.");
+    if (!await launchAgentOrPrintPrompt(command, prompt, report.project.rootDirectory)) {
+      agentFailed = true;
+      return;
+    }
+    // A staged gate must still verify the index; un-staged fixes cannot pass a commit check.
+    report = await scanProject({ ...scanOptions, diff: false });
+    process.stdout.write(options.staged
+      ? "\nVerification after agent: staged snapshot. Stage reviewed fixes and re-run if findings remain.\n"
+      : "\nVerification after agent: full working-tree scan.\n");
+    process.stdout.write(`${formatReport(report, { verbose: Boolean(options.verbose), showAgentPromptHint: false })}\n`);
+  };
   if (report.diagnostics.length > 0) {
     const prompt = buildAgentPrompt(report);
     if (options.agent) {
-      await launchAgentOrPrintPrompt(String(options.agent), prompt, report.project.rootDirectory);
+      const command = typeof options.agent === "string" ? options.agent :
+        (await resolveConfig(report.project.rootDirectory)).config.agent?.command ?? "codex";
+      await handoffAndVerify(command, prompt);
     } else if (options.agentPrompt) {
       printAgentPrompt(prompt);
     } else if (shouldSelectAgentInteractively) {
       const selection = await selectAgentInteractively();
       if (selection.type === "agent") {
-        await launchAgentOrPrintPrompt(selection.command, prompt, report.project.rootDirectory);
+        await handoffAndVerify(selection.command, prompt);
       } else if (selection.type === "prompt") {
         printAgentPrompt(prompt);
       } else {
@@ -276,7 +301,7 @@ program.action(async (directory: string, options: Record<string, unknown>) => {
     }
   }
 
-  process.exitCode = report.ok ? 0 : 1;
+  process.exitCode = !agentFailed && report.ok ? 0 : 1;
 });
 
 program
@@ -296,7 +321,7 @@ program
       process.stdout.write(`${result.dryRun ? "Would update" : "Updated"}:\n`);
       for (const filePath of result.changedFiles) process.stdout.write(`  ${filePath}\n`);
     } else {
-      process.stdout.write("Already up to date.\n");
+      process.stdout.write("No files changed; existing setup was preserved.\n");
     }
   });
 

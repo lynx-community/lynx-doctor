@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import type { Diagnostic, ScanReport } from "./types.js";
+import { VERSION, type Diagnostic, type ScanReport } from "./types.js";
 
 const MAX_PROMPT_GROUPS = 5;
 const MAX_FILES_PER_GROUP = 5;
@@ -27,7 +27,7 @@ export const buildAgentPrompt = (report: ScanReport): string => {
     "Work like this:",
     "1. Read the reported files before editing.",
     "2. Fix the root cause; do not silence rules unless the code truly cannot change.",
-    "3. Re-run `npx lynx-doctor@latest --verbose` and confirm the finding is gone.",
+    `3. Re-run \`npx --yes lynx-doctor@${VERSION} --verbose\` and confirm the finding is gone. Doctor will also verify after the handoff.`,
     "4. Explain what changed and why it matters for Lynx.",
     ""
   ];
@@ -40,7 +40,7 @@ export const buildAgentPrompt = (report: ScanReport): string => {
     lines.push(`   ${first.message}`);
     lines.push(`   Fix recipe: ${first.help}`);
     lines.push(`   Docs: ${first.docsUrl}`);
-    lines.push(`   Source skill: ${first.source.skill}/${first.source.docsPath}`);
+    lines.push(`   Source skill: ${first.source.skill}/${first.source.docsPath} @ ${first.source.ref}`);
     const seenFiles = new Set<string>();
     for (const diagnostic of diagnostics) {
       if (seenFiles.has(diagnostic.filePath)) continue;
@@ -81,7 +81,8 @@ export const launchAgent = async (
 ): Promise<number | null> =>
   new Promise((resolve, reject) => {
     const resolvedAgent = resolveAgentCommand(agent);
-    const child = spawn(resolvedAgent.command, resolvedAgent.args, {
+    const command = process.platform === "win32" ? `"${resolvedAgent.command}"` : resolvedAgent.command;
+    const child = spawn(command, resolvedAgent.args, {
       cwd,
       shell: process.platform === "win32",
       stdio: ["pipe", "inherit", "inherit"]

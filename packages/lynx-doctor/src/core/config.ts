@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { createRequire } from "node:module";
 import { createJiti } from "jiti";
 import { CSS_BACKENDS, type CssBackend, type CssTargets, type LynxDoctorConfig, type ResolvedConfig, type SeverityOverride } from "./types.js";
 import { readPackageJsonConfig } from "./project.js";
@@ -79,7 +80,12 @@ const loadConfigFile = async (configPath: string): Promise<LynxDoctorConfig> => 
   if (configPath.endsWith(".json")) {
     return normalizeConfig(JSON.parse(fs.readFileSync(configPath, "utf8")));
   }
-  const jiti = createJiti(import.meta.url, { moduleCache: false, interopDefault: true });
+  const jiti = createJiti(import.meta.url, {
+    moduleCache: false,
+    interopDefault: true,
+    // npx installs Doctor outside the project; typed configs must still resolve defineConfig.
+    alias: { "lynx-doctor": createRequire(import.meta.url).resolve("lynx-doctor") }
+  });
   const importWithDefault = jiti.import as (
     id: string,
     options?: { default?: boolean },
