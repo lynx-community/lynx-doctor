@@ -76,6 +76,18 @@ export function run() { lynx.getJSModule('Storage'); }`);
   assert.deepEqual(threads(report), []);
 });
 
+test("functions escaping through object shorthands and exports are not inferred as background-only", async (t) => {
+  const report = await scanSource(t, `import { useEffect } from '@lynx-js/react';
+function work() { NativeModules.Service.run(); }
+function escaped() { NativeModules.Service.run(); }
+export const api = { work };
+export { escaped };
+export const globals = { NativeModules };
+export function App() { useEffect(() => { work(); escaped(); }, []); return <view />; }
+`);
+  assert.deepEqual(threads(report).map((d) => d.line), [2, 3, 6]);
+});
+
 test("layout effects resolve import aliases and ignore unrelated functions", async (t) => {
   const report = await scanSource(t, `import { useLayoutEffect as layout } from '@lynx-js/react';
 import * as Lynx from '@lynx-js/react';

@@ -59,7 +59,17 @@ export const analyzeSource = (filePath: string, content: string) => {
   const imports = file.statements.filter(ts.isImportDeclaration);
   const moduleName = (node: ts.ImportDeclaration): string =>
     ts.isStringLiteral(node.moduleSpecifier) ? node.moduleSpecifier.text : "";
-  const binding = (node: ts.Node) => checker.getSymbolAtLocation(node);
+  const binding = (node: ts.Node) => {
+    // Shorthand properties and export aliases have their own symbols. Follow their
+    // values so an escaping function cannot appear to have only background callers.
+    if (ts.isIdentifier(node) && ts.isShorthandPropertyAssignment(node.parent)) {
+      return checker.getShorthandAssignmentValueSymbol(node.parent);
+    }
+    if (ts.isIdentifier(node) && ts.isExportSpecifier(node.parent)) {
+      return checker.getExportSpecifierLocalTargetSymbol(node.parent);
+    }
+    return checker.getSymbolAtLocation(node);
+  };
   const importName = (node: ts.Node, module: string): string | undefined => {
     node = unwrap(node);
     if (ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) {
