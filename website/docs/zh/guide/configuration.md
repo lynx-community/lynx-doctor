@@ -11,6 +11,7 @@ Lynx Doctor 会读取项目根目录下的 `lynx-doctor.config.ts`、`lynx-docto
 import { defineConfig } from "lynx-doctor";
 
 export default defineConfig({
+  targets: { android: "3.5", ios: "3.6" },
   ignore: {
     files: ["src/generated/**"]
   },
@@ -31,3 +32,5 @@ export default defineConfig({
 ```bash
 npx lynx-doctor@latest --category reactlynx --json
 ```
+
+`targets` 声明各渲染后端最低支持的 **Lynx 引擎**版本，不使用 ReactLynx npm 包版本。支持的后端与检查边界见 [CSS 兼容性](../rules/lynx-css)。

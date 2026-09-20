@@ -10,6 +10,7 @@ Lynx Doctor 规则来自 Lynx 社区 skills 的可执行化整理。规则包含
 - [reactlynx](./reactlynx)
 - [lynx-ui](./lynx-ui)
 - [rspeedy](./rspeedy)
+- [lynx-css](./lynx-css)
 
 CLI 的 `category` 使用一级领域：`reactlynx`、`lynx-ui` 或 `rspeedy`。
 

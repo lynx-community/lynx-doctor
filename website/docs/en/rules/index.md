@@ -10,6 +10,7 @@ Lynx Doctor rules are an executable distillation of Lynx community skills. Rules
 - [reactlynx](./reactlynx)
 - [lynx-ui](./lynx-ui)
 - [rspeedy](./rspeedy)
+- [lynx-css](./lynx-css)
 
 The CLI `category` field uses the first-level domain: `reactlynx`, `lynx-ui`, or `rspeedy`.
 

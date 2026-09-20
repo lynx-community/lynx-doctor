@@ -56,7 +56,8 @@ const zhSidebar = {
         { text: "概览", link: "/zh/rules/" },
         { text: "reactlynx", link: "/zh/rules/reactlynx" },
         { text: "lynx-ui", link: "/zh/rules/lynx-ui" },
-        { text: "rspeedy", link: "/zh/rules/rspeedy" }
+        { text: "rspeedy", link: "/zh/rules/rspeedy" },
+        { text: "lynx-css", link: "/zh/rules/lynx-css" }
       ]
     }
   ]
@@ -96,7 +97,8 @@ const enSidebar = {
         { text: "Overview", link: "/rules/" },
         { text: "reactlynx", link: "/rules/reactlynx" },
         { text: "lynx-ui", link: "/rules/lynx-ui" },
-        { text: "rspeedy", link: "/rules/rspeedy" }
+        { text: "rspeedy", link: "/rules/rspeedy" },
+        { text: "lynx-css", link: "/rules/lynx-css" }
       ]
     }
   ]

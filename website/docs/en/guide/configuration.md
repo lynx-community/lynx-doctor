@@ -11,6 +11,7 @@ Lynx Doctor reads `lynx-doctor.config.ts`, `lynx-doctor.config.mjs`, `lynx-docto
 import { defineConfig } from "lynx-doctor";
 
 export default defineConfig({
+  targets: { android: "3.5", ios: "3.6" },
   ignore: {
     files: ["src/generated/**"]
   },
@@ -31,3 +32,5 @@ Command-line flags override run options from config files:
 ```bash
 npx lynx-doctor@latest --category reactlynx --json
 ```
+
+`targets` declares minimum **Lynx engine** versions per backend. It does not use the ReactLynx npm version. See [CSS compatibility](../rules/lynx-css) for coverage and supported backends.

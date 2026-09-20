@@ -55,11 +55,14 @@
   },
   "dependencies": {
     "@clack/prompts": "^1.6.0",
+    "@lynx-js/css-defines": "0.0.16",
     "commander": "^15.0.0",
     "fast-glob": "^3.3.3",
     "jiti": "^2.7.0",
     "picocolors": "^1.1.1",
     "picomatch": "^4.0.7",
+    "postcss": "^8.5.28",
+    "postcss-value-parser": "^4.2.0",
     "typescript": "^6.0.3"
   },
   "devDependencies": {

@@ -1,6 +1,19 @@
 export const VERSION = "0.0.1";
 
-export const CATEGORIES = ["reactlynx", "lynx-ui", "rspeedy"] as const;
+export const CATEGORIES = ["reactlynx", "lynx-ui", "rspeedy", "lynx-css"] as const;
+
+export const CSS_BACKENDS = ["android", "ios", "harmony", "clay_android", "clay_ios", "clay_macos", "clay_windows", "web_lynx"] as const;
+export type CssBackend = (typeof CSS_BACKENDS)[number];
+/** Minimum Lynx engine version per rendering backend, not the ReactLynx npm version. */
+export type CssTargets = Readonly<Partial<Record<CssBackend, string>>>;
+export interface CssCoverage {
+  readonly status: "checked" | "not-configured" | "disabled";
+  readonly dataVersion: string;
+  readonly targets: CssTargets;
+  readonly files: number;
+  readonly declarations: number;
+  readonly unknownComparisons: number;
+}
 
 export type Category = (typeof CATEGORIES)[number];
 export type Subcategory =
@@ -12,7 +25,8 @@ export type Subcategory =
   | "imports"
   | "component-api"
   | "gestures"
-  | "bundle-size";
+  | "bundle-size"
+  | "compatibility";
 export type Severity = "error" | "warning";
 export type SeverityOverride = Severity | "off";
 export type BlockingLevel = "error" | "warning" | "none";
@@ -63,6 +77,7 @@ export interface Diagnostic {
 }
 
 export interface LynxDoctorConfig {
+  readonly targets?: CssTargets;
   readonly ignore?: {
     readonly files?: readonly string[];
   };
@@ -121,6 +136,8 @@ export interface ScanReport {
   readonly score: number;
   readonly summary: ScanSummary;
   readonly blocking: BlockingLevel;
+  readonly cssCoverage?: CssCoverage;
+  readonly notices?: readonly string[];
 }
 
 export interface InstallOptions {

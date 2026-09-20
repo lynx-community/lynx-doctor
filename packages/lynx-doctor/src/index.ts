@@ -1,5 +1,9 @@
 export {
   CATEGORIES,
+  CSS_BACKENDS,
+  type CssBackend,
+  type CssTargets,
+  type CssCoverage,
   VERSION,
   defineConfig,
   type BlockingLevel,

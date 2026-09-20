@@ -76,6 +76,8 @@ export const formatReport = (report: ScanReport, options: FormatReportOptions = 
     )}`,
   );
 
+  for (const notice of report.notices ?? []) lines.push(pc.yellow(`Note: ${notice}`));
+
   if (report.diagnostics.length === 0) {
     lines.push("");
     lines.push(pc.green("No Lynx Doctor findings."));

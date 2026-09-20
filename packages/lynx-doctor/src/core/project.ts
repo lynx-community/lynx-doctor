@@ -3,7 +3,7 @@ import path from "node:path";
 import fg from "fast-glob";
 import type { ProjectInfo } from "./types.js";
 
-const SOURCE_GLOBS = ["**/*.{ts,tsx,js,jsx,mts,cts,mjs,cjs}"];
+const SOURCE_GLOBS = ["**/*.{ts,tsx,js,jsx,mts,cts,mjs,cjs,css}"];
 export const DEFAULT_IGNORE_PATTERNS = [
   "**/node_modules/**",
   "**/dist/**",
