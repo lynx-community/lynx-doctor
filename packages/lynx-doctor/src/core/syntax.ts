@@ -105,7 +105,12 @@ export const analyzeSource = (filePath: string, content: string) => {
   };
   const isReference = (node: ts.Identifier): boolean => {
     const parent = node.parent;
-    if (ts.isShorthandPropertyAssignment(parent) || ts.isExportSpecifier(parent)) return true;
+    if (ts.isImportSpecifier(parent)) return false;
+    if (ts.isExportSpecifier(parent)) {
+      const declaration = parent.parent.parent;
+      return !parent.isTypeOnly && !declaration.isTypeOnly && !declaration.moduleSpecifier;
+    }
+    if (ts.isShorthandPropertyAssignment(parent)) return true;
     if ((parent as ts.NamedDeclaration).name === node) return false;
     for (let ancestor: ts.Node | undefined = parent; ancestor && !ts.isStatement(ancestor); ancestor = ancestor.parent) {
       if (ts.isTypeNode(ancestor)) return false;

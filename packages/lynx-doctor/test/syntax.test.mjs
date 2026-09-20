@@ -13,6 +13,8 @@ const threads = (report) => report.diagnostics.filter((d) =>
 
 test("thread rules ignore comments, strings, type positions, and shadowed globals", async (t) => {
   const report = await scanSource(t, `
+import { NativeModules as NativeBridge } from './bridge';
+export { NativeModules } from './bridge';
 // NativeModules.Storage.get(); lynx.getJSModule('Storage'); useLayoutEffect();
 const example = "NativeModules.Storage.get()";
 type NativeModules = { value: string };
