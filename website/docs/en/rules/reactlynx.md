@@ -11,8 +11,10 @@ Current subcategories:
 
 - `threading`: `reactlynx/background-only-api`
 - `lifecycle`: `reactlynx/avoid-use-layout-effect`
-- `events`: `reactlynx/main-thread-handler-directive`
+- `events`: `reactlynx/main-thread-handler-directive`, `reactlynx/native-element-events`
 - `configuration`: `reactlynx/global-props-event-mode`, `reactlynx/typescript-jsx-import-source`, `reactlynx/types-package-missing`
+- `elements`: `reactlynx/no-dom-elements`
+- `packaging`: `reactlynx/library-runtime-entry`, `reactlynx/library-missing-artifact`
 - `performance`: `reactlynx/lazy-without-suspense`
 
 Example threading issue:
