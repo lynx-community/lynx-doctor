@@ -55,8 +55,8 @@ test("monorepo installs put workflows at Git root and use actual PR base with re
   const app = path.join(root, "apps", "mobile app");
   initProject(app);
   const result = installLynxDoctor({ rootDirectory: app });
-  const workflowPath = fs.realpathSync(path.join(root, ".github/workflows/lynx-doctor.yml"));
-  assert.ok(result.changedFiles.some((file) => fs.realpathSync(file) === workflowPath));
+  const workflowPath = fs.realpathSync.native(path.join(root, ".github/workflows/lynx-doctor.yml"));
+  assert.ok(result.changedFiles.some((file) => fs.realpathSync.native(file) === workflowPath));
   assert.equal(fs.existsSync(path.join(app, ".github")), false);
   const workflow = read(root, ".github/workflows/lynx-doctor.yml");
   assert.match(workflow, /working-directory: "apps\/mobile app"/);

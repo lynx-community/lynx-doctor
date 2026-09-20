@@ -31,7 +31,8 @@ const repositoryRoot = (directory: string): string => {
 
 const dependencySteps = (gitRoot: string, project: string): string => {
   const root = fs.existsSync(path.join(gitRoot, "package.json")) ? gitRoot : project;
-  const directory = path.relative(fs.realpathSync(gitRoot), fs.realpathSync(root)).split(path.sep).join("/") || ".";
+  // Windows temp paths can use 8.3 aliases while Git reports long paths.
+  const directory = path.relative(fs.realpathSync.native(gitRoot), fs.realpathSync.native(root)).split(path.sep).join("/") || ".";
   const has = (name: string) => fs.existsSync(path.join(root, name));
   const manager = has("package.json") ? readPackageJson(path.join(root, "package.json")).packageManager ?? "" : "";
   let setup = "";
@@ -55,7 +56,7 @@ ${command.split("\n").map((line) => `          ${line}`).join("\n")}
 };
 
 const workflow = (root: string, project: string): string => {
-  const directory = path.relative(fs.realpathSync(root), fs.realpathSync(project)).split(path.sep).join("/") || ".";
+  const directory = path.relative(fs.realpathSync.native(root), fs.realpathSync.native(project)).split(path.sep).join("/") || ".";
   return `name: Lynx Doctor
 
 on:
