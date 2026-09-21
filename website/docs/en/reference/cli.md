@@ -34,7 +34,8 @@ Options:
 | `--score` | Output only the numeric score |
 | `--diff [base]` | Scan files changed against a base ref |
 | `--staged` | Scan files staged in the git index |
-| `--category <category>` | Show one category, repeatable: `reactlynx`, `lynx-ui`, or `rspeedy` |
+| `--package` | Check existing component library entry artifacts after a build |
+| `--category <category>` | Show one category, repeatable: `reactlynx`, `lynx-ui`, `rspeedy`, or `lynx-css` |
 | `--no-warnings` | Hide warnings and show errors only |
 | `--blocking <level>` | Set the failing threshold: `error`, `warning`, or `none` |
 | `--agent-prompt` | Print a repair prompt for a coding agent |

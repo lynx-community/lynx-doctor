@@ -26,7 +26,9 @@ export type Subcategory =
   | "component-api"
   | "gestures"
   | "bundle-size"
-  | "compatibility";
+  | "compatibility"
+  | "elements"
+  | "packaging";
 export type Severity = "error" | "warning";
 export type SeverityOverride = Severity | "off";
 export type BlockingLevel = "error" | "warning" | "none";
@@ -109,6 +111,8 @@ export interface ProjectInfo {
 }
 
 export interface ScanOptions {
+  /** Inspect already-built component library entry files in the working tree. */
+  readonly package?: boolean;
   readonly directory?: string;
   readonly categories?: readonly string[];
   readonly diff?: boolean | string;

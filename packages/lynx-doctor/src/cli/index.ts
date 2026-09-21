@@ -203,9 +203,10 @@ const program = new Command()
   .option("--json-compact", "with --json, emit compact JSON")
   .option("--score", "output only the numeric score")
   .option("--staged", "scan only staged files")
+  .option("--package", "check existing component library runtime and declaration entry files")
   .addOption(new Option("--diff [base]", "scan files changed against a base ref").default(false))
   .addOption(
-    new Option("--category <category>", "only show one category: reactlynx, lynx-ui, or rspeedy; repeat to include more").argParser(
+    new Option("--category <category>", "only show one category: reactlynx, lynx-ui, rspeedy, or lynx-css; repeat to include more").argParser(
       collectCategory,
     ),
   )
@@ -237,6 +238,7 @@ program.action(async (directory: string, options: Record<string, unknown>) => {
     directory,
     verbose: Boolean(options.verbose),
     staged: Boolean(options.staged),
+    package: Boolean(options.package),
     ...(diff === undefined || diff === false ? {} : { diff }),
     ...(categories ? { categories } : {}),
     includeWarnings: options.warnings !== false,

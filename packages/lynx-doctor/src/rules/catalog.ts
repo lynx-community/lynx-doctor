@@ -4,7 +4,7 @@ const SKILLS_REPO = "lynx-community/skills";
 const SKILLS_REF = "715f74063c53ec3d50e68b28b90e163b33cbc6b6";
 
 const sourceFromSkill = (
-  skill: "reactlynx-best-practices" | "lynx-ui" | "rspeedy-bundle-size" | "lynx-typescript" | "lynx-check-css-support",
+  skill: "reactlynx-best-practices" | "lynx-ui" | "rspeedy-bundle-size" | "lynx-typescript" | "lynx-check-css-support" | "lynx-api-docs",
   protocol: "frontmatter-rules" | "reference-routing" | "component-api" | "bundle-size-reference",
   docsPath: string,
   supportingPaths: readonly string[] = ["SKILL.md"],
@@ -29,6 +29,58 @@ const defineRule = (
 });
 
 export const RULES: readonly RuleDefinition[] = [
+  defineRule({
+    id: "reactlynx/no-dom-elements",
+    title: "Web element used in Lynx source",
+    category: "reactlynx",
+    subcategory: "elements",
+    defaultSeverity: "warning",
+    impact: "medium",
+    summary: "Detects common Web tags in Lynx source without rejecting unknown custom native elements.",
+    why: "Web element contracts and application build assumptions do not automatically transfer to native Lynx components or reusable packages.",
+    fix: "Use Lynx view, text, image, or list elements, or verify the host registers the custom element.",
+    source: sourceFromSkill("lynx-api-docs", "reference-routing", "lynx-vs-web/migration-guide.md"),
+    tags: ["elements", "integration"]
+  }),
+  defineRule({
+    id: "reactlynx/native-element-events",
+    title: "Native Lynx element uses a Web event prop",
+    category: "reactlynx",
+    subcategory: "events",
+    defaultSeverity: "error",
+    impact: "medium",
+    summary: "Checks Web click/touch props on known native Lynx elements.",
+    why: "Web element contracts and application build assumptions do not automatically transfer to native Lynx components or reusable packages.",
+    fix: "Use the matching bind*/catch* event on native elements. Component props such as Button.onClick follow their own API.",
+    source: sourceFromSkill("lynx-api-docs", "reference-routing", "elements/view.md"),
+    tags: ["events", "integration"]
+  }),
+  defineRule({
+    id: "reactlynx/library-runtime-entry",
+    title: "Component library exposes raw TypeScript as a runtime entry",
+    category: "reactlynx",
+    subcategory: "packaging",
+    defaultSeverity: "warning",
+    impact: "medium",
+    summary: "Checks universal runtime entries of packages declaring a ReactLynx peer dependency.",
+    why: "Web element contracts and application build assumptions do not automatically transfer to native Lynx components or reusable packages.",
+    fix: "Publish emitted ESM with preserved JSX and matching declarations. Keep source behind an explicit source field or condition.",
+    source: sourceFromSkill("reactlynx-best-practices", "reference-routing", "rules/component-library-packaging.md"),
+    tags: ["packaging", "integration"]
+  }),
+  defineRule({
+    id: "reactlynx/library-missing-artifact",
+    title: "Component library entry does not match a built file",
+    category: "reactlynx",
+    subcategory: "packaging",
+    defaultSeverity: "error",
+    impact: "medium",
+    summary: "With --package, checks that literal runtime and type entries point to existing package-local files.",
+    why: "Web element contracts and application build assumptions do not automatically transfer to native Lynx components or reusable packages.",
+    fix: "Build the library first, align exports with emitted .js/.jsx and declaration paths, then validate the packed package in a consumer.",
+    source: sourceFromSkill("reactlynx-best-practices", "reference-routing", "rules/component-library-packaging.md"),
+    tags: ["packaging", "integration"]
+  }),
   defineRule({
     id: "lynx-css/unsupported",
     title: "CSS is unsupported on a target backend",
