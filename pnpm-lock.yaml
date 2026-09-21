@@ -38,6 +38,9 @@ importers:
       picomatch:
         specifier: ^4.0.7
         version: 4.0.7
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
     devDependencies:
       '@arethetypeswrong/cli':
         specifier: ^0.18.4
@@ -54,9 +57,6 @@ importers:
       publint:
         specifier: ^0.3.21
         version: 0.3.21
-      typescript:
-        specifier: ^6.0.3
-        version: 6.0.3
 
   website:
     dependencies:

@@ -1,10 +1,10 @@
 import type { RuleDefinition, RuleSource } from "../core/types.js";
 
 const SKILLS_REPO = "lynx-community/skills";
-const SKILLS_REF = "release";
+const SKILLS_REF = "715f74063c53ec3d50e68b28b90e163b33cbc6b6";
 
 const sourceFromSkill = (
-  skill: "reactlynx-best-practices" | "lynx-ui" | "rspeedy-bundle-size",
+  skill: "reactlynx-best-practices" | "lynx-ui" | "rspeedy-bundle-size" | "lynx-typescript",
   protocol: "frontmatter-rules" | "reference-routing" | "component-api" | "bundle-size-reference",
   docsPath: string,
   supportingPaths: readonly string[] = ["SKILL.md"],
@@ -112,12 +112,12 @@ export const RULES: readonly RuleDefinition[] = [
     subcategory: "configuration",
     defaultSeverity: "error",
     impact: "medium",
-    summary: "Checks tsconfig.json for jsxImportSource and isolatedModules settings expected by ReactLynx/Rspeedy.",
+    summary: "Checks inherited TypeScript options, including JSX preservation/runtime and isolated module semantics.",
     why:
       "ReactLynx JSX and Rspeedy transpilation need the Lynx JSX runtime and isolated module semantics for reliable type checking.",
     fix:
-      "Set compilerOptions.jsx to react-jsx, compilerOptions.jsxImportSource to @lynx-js/react, and isolatedModules to true.",
-    source: sourceFromSkill("reactlynx-best-practices", "reference-routing", "SKILL.md"),
+      "Use jsx: preserve for a library that preserves JSX, or react-jsx/react-jsxdev with jsxImportSource: @lynx-js/react; enable isolatedModules or verbatimModuleSyntax.",
+    source: sourceFromSkill("lynx-typescript", "reference-routing", "SKILL.md"),
     tags: ["configuration", "typescript", "jsx", "rspeedy"]
   }),
   defineRule({
@@ -132,7 +132,7 @@ export const RULES: readonly RuleDefinition[] = [
       "The core Lynx type package provides globals, events, NativeModules extension points, and intrinsic element types.",
     fix:
       "Install @lynx-js/types alongside @lynx-js/react and keep duplicate/conflicting Lynx type packages out of the project.",
-    source: sourceFromSkill("reactlynx-best-practices", "reference-routing", "SKILL.md"),
+    source: sourceFromSkill("lynx-typescript", "reference-routing", "SKILL.md"),
     tags: ["configuration", "typescript", "types"]
   }),
   defineRule({

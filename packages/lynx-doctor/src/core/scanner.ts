@@ -2,6 +2,9 @@ import fs from "node:fs";
 import path from "node:path";
 import fg from "fast-glob";
 import picomatch from "picomatch";
+import ts from "typescript";
+import { analyzeSource, checkThreadSyntax, type SourceAnalysis } from "./syntax.js";
+import { readCompilerOptions } from "./typescript-config.js";
 import { RULE_BY_ID } from "../rules/catalog.js";
 import { resolveConfig } from "./config.js";
 import { DEFAULT_IGNORE_PATTERNS, discoverProject } from "./project.js";
@@ -69,121 +72,10 @@ const addDiagnostic = (diagnostics: Diagnostic[], input: MutableDiagnosticInput)
   });
 };
 
-const lineHasDirective = (line: string, directive: "background only" | "main thread"): boolean =>
-  line.includes(`'${directive}'`) || line.includes(`"${directive}"`);
-
-const hasDirectiveNearby = (
-  lines: readonly string[],
-  lineIndex: number,
-  directive: "background only" | "main thread",
-): boolean => {
-  const start = Math.max(0, lineIndex - 12);
-  for (let index = lineIndex; index >= start; index--) {
-    if (lineHasDirective(lines[index] ?? "", directive)) return true;
-  }
-  return false;
-};
-
-const isLikelyBackgroundContext = (lines: readonly string[], lineIndex: number): boolean => {
-  if (hasDirectiveNearby(lines, lineIndex, "background only")) return true;
-  const start = Math.max(0, lineIndex - 10);
-  const context = lines.slice(start, lineIndex + 1).join("\n");
-  return /\buseEffect\s*\(|\buseImperativeHandle\s*\(|\bref\s*=\s*{|\bbind[a-z-]*\s*=\s*{|\bcatch[a-z-]*\s*=\s*{/i.test(
-    context,
-  );
-};
-
 const findColumn = (line: string, pattern: RegExp): number => {
   const match = pattern.exec(line);
   pattern.lastIndex = 0;
   return match ? match.index + 1 : 1;
-};
-
-const checkBackgroundOnlyApi = (context: FileContext, diagnostics: Diagnostic[]): void => {
-  const pattern = /\b(?:lynx\.getJSModule|NativeModules)\b/g;
-  context.lines.forEach((line, index) => {
-    if (!pattern.test(line)) return;
-    pattern.lastIndex = 0;
-    if (isLikelyBackgroundContext(context.lines, index)) return;
-    addDiagnostic(diagnostics, {
-      ruleId: "reactlynx/background-only-api",
-      filePath: context.relativePath,
-      line: index + 1,
-      column: findColumn(line, pattern),
-      sourceLine: line,
-      message:
-        "This native API call is not inside an obvious background-only context, so it may run during main-thread render."
-    });
-  });
-};
-
-const checkUseLayoutEffect = (context: FileContext, diagnostics: Diagnostic[]): void => {
-  const pattern = /\buseLayoutEffect\b/g;
-  context.lines.forEach((line, index) => {
-    if (!pattern.test(line)) return;
-    pattern.lastIndex = 0;
-    addDiagnostic(diagnostics, {
-      ruleId: "reactlynx/avoid-use-layout-effect",
-      filePath: context.relativePath,
-      line: index + 1,
-      column: findColumn(line, pattern),
-      sourceLine: line,
-      message:
-        "ReactLynx does not support React DOM style synchronous layout effects; this lifecycle can give a false sense of safety."
-    });
-  });
-};
-
-const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-const functionHasDirective = (
-  content: string,
-  functionName: string,
-  directive: "main thread" | "background only",
-): boolean => {
-  const escaped = escapeRegExp(functionName);
-  const patterns = [
-    new RegExp(`function\\s+${escaped}\\s*\\([^)]*\\)\\s*{([\\s\\S]{0,240})`, "m"),
-    new RegExp(`(?:const|let|var)\\s+${escaped}\\s*=\\s*(?:async\\s*)?(?:\\([^)]*\\)|[^=()]+)\\s*=>\\s*{([\\s\\S]{0,240})`, "m")
-  ];
-  for (const pattern of patterns) {
-    const bodyStart = pattern.exec(content)?.[1];
-    if (!bodyStart) continue;
-    const firstStatements = bodyStart
-      .split(/\r?\n/g)
-      .map((line) => line.trim())
-      .filter((line) => line.length > 0 && !line.startsWith("//"))
-      .slice(0, 3)
-      .join("\n");
-    if (lineHasDirective(firstStatements, directive)) return true;
-  }
-  return false;
-};
-
-const checkMainThreadHandlers = (context: FileContext, diagnostics: Diagnostic[]): void => {
-  const attributePattern = /main-thread:[\w-]+\s*=\s*{([^}]+)}/g;
-  context.lines.forEach((line, index) => {
-    for (const match of line.matchAll(attributePattern)) {
-      const expression = match[1]?.trim() ?? "";
-      const handlerName = /^[A-Za-z_$][\w$]*$/.test(expression) ? expression : null;
-      const hasDirective =
-        handlerName !== null
-          ? functionHasDirective(context.content, handlerName, "main thread")
-          : lineHasDirective(expression, "main thread");
-      if (hasDirective) continue;
-      addDiagnostic(diagnostics, {
-        ruleId: "reactlynx/main-thread-handler-directive",
-        filePath: context.relativePath,
-        line: index + 1,
-        column: (match.index ?? 0) + 1,
-        sourceLine: line,
-        message:
-          handlerName === null
-            ? "This inline main-thread handler does not show a 'main thread' directive."
-            : `main-thread handler "${handlerName}" is missing a top-level 'main thread' directive.`
-      });
-    }
-  });
 };
 
 const checkGlobalPropsEventMode = (context: FileContext, diagnostics: Diagnostic[]): void => {
@@ -356,17 +248,19 @@ const checkProjectConfiguration = (project: ProjectInfo, diagnostics: Diagnostic
   const tsconfig = readTextIfExists(tsconfigPath);
   if (!tsconfig) return;
 
-  if (!/"jsxImportSource"\s*:\s*"@lynx-js\/react"/.test(tsconfig)) {
+  const compilerOptions = readCompilerOptions(tsconfigPath);
+  const automaticJsx = compilerOptions.jsx === ts.JsxEmit.ReactJSX || compilerOptions.jsx === ts.JsxEmit.ReactJSXDev;
+  if (compilerOptions.jsx !== ts.JsxEmit.Preserve && (!automaticJsx || compilerOptions.jsxImportSource !== "@lynx-js/react")) {
     addDiagnostic(diagnostics, {
       ruleId: "reactlynx/typescript-jsx-import-source",
       filePath: "tsconfig.json",
       line: findLine(tsconfig, /jsxImportSource|compilerOptions/),
       message:
-        "tsconfig.json does not set compilerOptions.jsxImportSource to @lynx-js/react."
+        "The effective TypeScript configuration must preserve JSX or use react-jsx/react-jsxdev with jsxImportSource @lynx-js/react."
     });
   }
 
-  if (!/"isolatedModules"\s*:\s*true/.test(tsconfig)) {
+  if (!compilerOptions.isolatedModules && !compilerOptions.verbatimModuleSyntax) {
     addDiagnostic(diagnostics, {
       ruleId: "reactlynx/typescript-jsx-import-source",
       filePath: "tsconfig.json",
@@ -398,12 +292,14 @@ const hasNewGestureEnabled = (project: ProjectInfo): boolean =>
     return content !== null && /enableNewGesture\s*:\s*true/.test(content);
   });
 
-const isLynxSourceContext = (project: ProjectInfo, content: string): boolean =>
-  project.hasReactLynx ||
-  project.hasRspeedy ||
-  project.hasLynxUi ||
-  /from\s+["']@lynx-js\//.test(content) ||
-  /import\s+["']@lynx-js\//.test(content);
+const isLynxSourceContext = (project: ProjectInfo, analysis: SourceAnalysis): boolean => {
+  const modules = analysis.imports.map(analysis.moduleName);
+  if (modules.some((name) => name.startsWith("@lynx-js/"))) return true;
+  // Explicit React DOM imports or JSX pragmas take precedence over package-level detection.
+  if (modules.some((name) => name === "react" || name === "react-dom" || name.startsWith("react-dom/")) ||
+    /@jsxImportSource\s+react(?:\s|\*)/.test(analysis.file.text)) return false;
+  return project.hasReactLynx || project.hasRspeedy || project.hasLynxUi;
+};
 
 const shouldBlock = (diagnostics: readonly Diagnostic[], blocking: BlockingLevel): boolean => {
   if (blocking === "none") return false;
@@ -491,10 +387,19 @@ export const scanProject = async (options: ScanOptions = {}): Promise<ScanReport
       hasGlobalPropsEventMode: eventMode,
       hasNewGestureEnabled: newGestureEnabled
     };
-    if (!isLynxSourceContext(project, content)) continue;
-    checkBackgroundOnlyApi(context, diagnostics);
-    checkUseLayoutEffect(context, diagnostics);
-    checkMainThreadHandlers(context, diagnostics);
+    const analysis = analyzeSource(filePath, content);
+    if (!isLynxSourceContext(project, analysis)) continue;
+    for (const finding of checkThreadSyntax(analysis)) {
+      const position = analysis.file.getLineAndCharacterOfPosition(finding.node.getStart(analysis.file));
+      addDiagnostic(diagnostics, {
+        ruleId: finding.ruleId,
+        message: finding.message,
+        filePath: context.relativePath,
+        line: position.line + 1,
+        column: position.character + 1,
+        sourceLine: context.lines[position.line] ?? ""
+      });
+    }
     checkGlobalPropsEventMode(context, diagnostics);
     checkLazyWithoutSuspense(context, diagnostics);
     checkLynxUiAggregateImports(context, diagnostics);
