@@ -1,3 +1,4 @@
+import { isUtf8 } from "node:buffer";
 import fs from "node:fs";
 import path from "node:path";
 import fg from "fast-glob";
@@ -354,6 +355,7 @@ export const scanProject = async (options: ScanOptions = {}): Promise<ScanReport
   const resolvedConfig = await resolveConfig(project.rootDirectory);
   const selection = await listSourceFiles(project.rootDirectory, options, resolvedConfig.config);
   const scannedFiles: string[] = [];
+  const skippedFiles: string[] = [];
   const diagnostics: Diagnostic[] = [];
   const eventMode = hasGlobalPropsEventMode(project);
   const newGestureEnabled = hasNewGestureEnabled(project);
@@ -371,8 +373,15 @@ export const scanProject = async (options: ScanOptions = {}): Promise<ScanReport
   let cssUnknown = 0;
 
   for (const filePath of selection.files) {
-    const content = selection.readFile(filePath);
-    if (content === null) continue;
+    const bytes = selection.readFile(filePath);
+    if (bytes === null) continue;
+    // Compiled Lynx bundles can have source extensions such as .lynx.js.
+    // Inspect the selected snapshot before decoding or passing it to a parser.
+    if (bytes.includes(0) || !isUtf8(bytes)) {
+      skippedFiles.push(toPosixRelativePath(project.rootDirectory, filePath));
+      continue;
+    }
+    const content = bytes.toString("utf8");
     scannedFiles.push(filePath);
     const context: FileContext = {
       rootDirectory: project.rootDirectory,
@@ -450,6 +459,7 @@ export const scanProject = async (options: ScanOptions = {}): Promise<ScanReport
     cssCoverage: { status: cssStatus, dataVersion: CSS_DATA_VERSION, targets, files: cssFiles, declarations: cssDeclarations, unknownComparisons: cssUnknown },
     notices: [
       ...library.notices,
+      ...skippedFiles.map((filePath) => `Skipped binary or non-UTF-8 file: ${filePath}`),
       ...(cssFiles && cssStatus === "not-configured" ? ["CSS compatibility was not checked: configure targets with minimum Lynx engine versions."] : []),
       ...(cssUnknown ? [`CSS compatibility data is unknown for ${cssUnknown} property/feature and target comparisons; these are not classified as supported or unsupported.`] : [])
     ]
