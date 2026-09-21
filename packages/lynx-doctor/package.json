@@ -1,6 +1,6 @@
 {
   "name": "lynx-doctor",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A deterministic scanner and agent handoff CLI for Lynx projects.",
   "keywords": [
     "agent",
