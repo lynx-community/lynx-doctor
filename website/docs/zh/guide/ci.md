@@ -1,6 +1,6 @@
 ---
 title: CI 设置
-description: 使用 install 命令把 Lynx Doctor 加入 GitHub Actions，在每个 pull request 上扫描新增问题。
+description: 把 Lynx Doctor 接入 GitHub Actions，在 Pull Request 中自动检查代码变更。
 ---
 
 # CI 设置
@@ -11,25 +11,25 @@ description: 使用 install 命令把 Lynx Doctor 加入 GitHub Actions，在每
 npx lynx-doctor@latest install
 ```
 
-它会写入：
+该命令会在项目中添加：
 
-- `.github/workflows/lynx-doctor.yml`
-- `package.json` 的 `doctor` script
-- `.agents/lynx-doctor.md`
+- GitHub Actions 工作流：`.github/workflows/lynx-doctor.yml`
+- 命令脚本：`package.json` 中的 `doctor` 脚本
+- Agent 使用说明：`.agents/lynx-doctor.md`
 
-默认 workflow 会在 pull request 上运行 diff 扫描：
+默认工作流会在 Pull Request 中检查有改动的文件。发现错误或警告时，检查都会失败：
 
 ```bash
 npx lynx-doctor@latest --diff --blocking warning
 ```
 
-如果团队还没有准备好阻塞 warning，可以把 workflow 中的 blocking 改成：
+如果希望只在出现错误时让检查失败，将工作流中的命令改为：
 
 ```bash
 npx lynx-doctor@latest --diff --blocking error
 ```
 
-或者只做观察：
+如需先观察检查结果，可暂时关闭对错误和警告的阻断：
 
 ```bash
 npx lynx-doctor@latest --diff --blocking none

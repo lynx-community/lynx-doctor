@@ -1,47 +1,11 @@
 ---
 title: Lynx Doctor
-description: 扫描 Lynx 项目、发现 Lynx 专属问题，并生成可交给 agent 的修复提示。
+description: Lynx 项目的代码检查工具。检查线程用法、API 调用和构建配置，定位问题并提供修改建议，也支持用编程 Agent 辅助修复。
 pageType: custom
 sidebar: false
 outline: false
 ---
 
-import { LynxTerminalDemo } from "@rspress/core/theme";
+import { LynxHomeShowcase } from "@rspress/core/theme";
 
-<main className="lynx-home">
-  <div className="lynx-home__inner">
-    <section className="lynx-home__hero">
-      <div className="lynx-home__copy">
-        <p className="lynx-home__eyebrow">Lynx Doctor</p>
-        <h1 className="lynx-home__title">先诊断，再让 Agent 修。</h1>
-        <div className="lynx-home__subtitle">
-          扫描 Lynx 项目，把问题说清楚，再交给 agent 修。
-        </div>
-        <div className="lynx-home__actions">
-          <a className="lynx-home__button" href="/zh/guide/quickstart.html">快速开始</a>
-          <a className="lynx-home__button lynx-home__button--ghost" href="/zh/examples/index.html">示例项目</a>
-          <a className="lynx-home__button lynx-home__button--ghost" href="/zh/reference/cli.html">查看 CLI</a>
-        </div>
-      </div>
-      <LynxTerminalDemo locale="zh" />
-    </section>
-
-    <section className="lynx-home__flow" aria-label="Lynx Doctor workflow">
-      <div className="lynx-step">
-        <div className="lynx-step__number">01</div>
-        <div className="lynx-step__title">扫描项目</div>
-        <p className="lynx-step__copy">在项目根目录运行 CLI，自动识别 Lynx 依赖、TypeScript 和源码范围。</p>
-      </div>
-      <div className="lynx-step">
-        <div className="lynx-step__number">02</div>
-        <div className="lynx-step__title">发现问题</div>
-        <p className="lynx-step__copy">按 reactlynx、lynx-ui 和 rspeedy 分组输出可解释诊断，更细主题通过 subcategory 呈现。</p>
-      </div>
-      <div className="lynx-step">
-        <div className="lynx-step__number">03</div>
-        <div className="lynx-step__title">唤起 agent 修复</div>
-        <p className="lynx-step__copy">用 <code>--agent-prompt</code> 生成聚焦提示，或用 <code>--agent codex</code> 直接交给本地 agent。</p>
-      </div>
-    </section>
-  </div>
-</main>
+<LynxHomeShowcase locale="zh" />

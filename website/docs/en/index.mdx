@@ -1,47 +1,11 @@
 ---
 title: Lynx Doctor
-description: Scan Lynx projects, find Lynx-specific issues, and generate focused repair prompts for coding agents.
+description: Find threading errors, API misuse, and build risks in Lynx projects. Generate repair prompts for coding agents.
 pageType: custom
 sidebar: false
 outline: false
 ---
 
-import { LynxTerminalDemo } from "@rspress/core/theme";
+import { LynxHomeShowcase } from "@rspress/core/theme";
 
-<main className="lynx-home">
-  <div className="lynx-home__inner">
-    <section className="lynx-home__hero">
-      <div className="lynx-home__copy">
-        <p className="lynx-home__eyebrow">Lynx Doctor</p>
-        <h1 className="lynx-home__title">Diagnose before agents fix.</h1>
-        <div className="lynx-home__subtitle">
-          Scan Lynx projects, explain issues clearly, and hand focused fixes to agents.
-        </div>
-        <div className="lynx-home__actions">
-          <a className="lynx-home__button" href="/guide/quickstart.html">Quickstart</a>
-          <a className="lynx-home__button lynx-home__button--ghost" href="/examples/index.html">Examples</a>
-          <a className="lynx-home__button lynx-home__button--ghost" href="/reference/cli.html">CLI Reference</a>
-        </div>
-      </div>
-      <LynxTerminalDemo locale="en" />
-    </section>
-
-    <section className="lynx-home__flow" aria-label="Lynx Doctor workflow">
-      <div className="lynx-step">
-        <div className="lynx-step__number">01</div>
-        <div className="lynx-step__title">Scan The Project</div>
-        <p className="lynx-step__copy">Run the CLI at the project root to detect Lynx dependencies, TypeScript, and source scope.</p>
-      </div>
-      <div className="lynx-step">
-        <div className="lynx-step__number">02</div>
-        <div className="lynx-step__title">Find Issues</div>
-        <p className="lynx-step__copy">Read explainable diagnostics grouped by reactlynx, lynx-ui, and rspeedy, with finer topics exposed as subcategories.</p>
-      </div>
-      <div className="lynx-step">
-        <div className="lynx-step__number">03</div>
-        <div className="lynx-step__title">Launch An Agent</div>
-        <p className="lynx-step__copy">Use <code>--agent-prompt</code> to print a focused prompt, or <code>--agent codex</code> to hand it to a local agent.</p>
-      </div>
-    </section>
-  </div>
-</main>
+<LynxHomeShowcase locale="en" />

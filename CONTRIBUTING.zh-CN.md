@@ -10,8 +10,8 @@
 
 ## 环境要求
 
-- Node.js >= 20.19.0
-- pnpm >= 10
+- Node.js >= 22.12.0
+- pnpm 11.8.0（与 `package.json` 中的版本一致）
 
 安装 workspace 依赖：
 

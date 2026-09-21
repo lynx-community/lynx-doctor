@@ -10,8 +10,8 @@ Thanks for improving Lynx Doctor. This guide covers local development, documenta
 
 ## Requirements
 
-- Node.js >= 20.19.0
-- pnpm >= 10
+- Node.js >= 22.12.0
+- pnpm 11.8.0 (the version set in `package.json`)
 
 Install workspace dependencies:
 

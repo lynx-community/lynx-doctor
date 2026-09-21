@@ -1,32 +1,32 @@
 ---
 title: Agent 工作流
-description: 使用 Lynx Doctor 将扫描结果整理成 agent 修复提示，完成发现问题到自动修复的闭环。
+description: 将检查结果整理成修复提示词，交给本地编程 Agent，并在修改后重新检查。
 ---
 
 # Agent 工作流
 
-Lynx Doctor 的 handoff 不是把所有问题一次性塞给 agent，而是把最高优先级规则分组，让 agent 一次修一组根因。
+Lynx Doctor 会按规则整理需要优先处理的问题，生成包含代码位置和修改建议的提示词：
 
 ```bash
 npx lynx-doctor@latest --diff --agent-prompt
 ```
 
-输出会包含：
+提示词包含：
 
-- 当前项目和分数
-- 最高优先级规则
-- 每组规则的代表文件位置
-- 对应修复策略和规则文档
-- 重新验证命令
+- 项目名称和当前评分
+- 需要优先处理的检查规则
+- 对应的文件路径和行号
+- 修改建议和规则文档
+- 修改后需要运行的检查命令
 
-如果本机有可用 agent CLI，可以直接启动：
+如果本机已配置好 Codex 等编程 Agent，也可以直接调用它进行修复：
 
 ```bash
 npx lynx-doctor@latest --diff --agent codex
 ```
 
-Agent 修复时应遵守三条原则：
+给 Agent 的修复要求：
 
-1. 先读文件，再编辑。
-2. 修根因，不用注释关闭规则。
-3. 改完重跑 Lynx Doctor，确认诊断消失。
+1. 先阅读相关代码，确认问题原因，再进行修改。
+2. 修复代码本身，不要仅靠关闭检查规则来消除报错。
+3. 修改后重新运行 Lynx Doctor，确认相关问题已解决。

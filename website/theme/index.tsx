@@ -1,4 +1,6 @@
 import "./index.css";
+import "./home-hero.css";
+import "./home-sections.css";
 
-export { LynxTerminalDemo } from "./LynxTerminalDemo.js";
+export { LynxHomeShowcase } from "./LynxHomeShowcase.js";
 export * from "@rspress/core/theme-original";
