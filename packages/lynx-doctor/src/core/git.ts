@@ -2,11 +2,10 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 
-const runGit = (directory: string, args: readonly string[]): string | null => {
+const runGit = (directory: string, args: readonly string[]): Buffer | null => {
   try {
     return execFileSync("git", [...args], {
       cwd: directory,
-      encoding: "utf8",
       maxBuffer: 32 * 1024 * 1024,
       stdio: ["ignore", "pipe", "ignore"]
     });
@@ -15,13 +14,16 @@ const runGit = (directory: string, args: readonly string[]): string | null => {
   }
 };
 
-const requireGit = (directory: string, args: readonly string[]): string => {
+const requireGitBuffer = (directory: string, args: readonly string[]): Buffer => {
   const output = runGit(directory, args);
   if (output === null) {
     throw new Error("Could not run git " + args.join(" ") + ". Check the ref and fetch the required history.");
   }
   return output;
 };
+
+const requireGit = (directory: string, args: readonly string[]): string =>
+  requireGitBuffer(directory, args).toString("utf8");
 
 const splitPaths = (output: string): string[] => output.split("\0").filter(Boolean);
 
@@ -37,13 +39,13 @@ const detectBaseRef = (directory: string): string | null => {
 
 export interface SourceSelection {
   readonly files: readonly string[];
-  readonly readFile: (filePath: string) => string | null;
+  readonly readFile: (filePath: string) => Buffer | null;
 }
 
-export const readWorkingFile = (filePath: string): string | null => {
+export const readWorkingFile = (filePath: string): Buffer | null => {
   try {
     if (!fs.statSync(filePath).isFile()) return null;
-    return fs.readFileSync(filePath, "utf8");
+    return fs.readFileSync(filePath);
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
     throw error;
@@ -62,7 +64,7 @@ export const listChangedFiles = (
 
   const rootOutput = runGit(projectRoot, ["rev-parse", "--show-toplevel"]);
   if (rootOutput === null) throw new Error("--diff and --staged require a Git working tree.");
-  const gitRoot = rootOutput.trimEnd();
+  const gitRoot = rootOutput.toString("utf8").trimEnd();
   const diffArgs = ["diff", "--name-only", "--diff-filter=ACMRT", "-z"];
   let changed: string[];
 
@@ -91,7 +93,7 @@ export const listChangedFiles = (
   return {
     files: [...repositoryPaths.keys()].sort(),
     readFile: options.staged
-      ? (filePath) => requireGit(gitRoot, ["show", ":" + repositoryPaths.get(filePath)])
+      ? (filePath) => requireGitBuffer(gitRoot, ["show", ":" + repositoryPaths.get(filePath)])
       : readWorkingFile
   };
 };

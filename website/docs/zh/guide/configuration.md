@@ -35,4 +35,6 @@ npx lynx-doctor@latest --category reactlynx --json
 
 `targets` 声明各渲染后端最低支持的 **Lynx 引擎**版本，不使用 ReactLynx npm 包版本。支持的后端与检查边界见 [CSS 兼容性](../rules/lynx-css)。
 
+包含空字节或无效 UTF-8 的文件会在解析前自动跳过，即使扩展名是 `.lynx.js` 等源码扩展名。报告会通过提示列出这些文件路径，并将其排除在已扫描文件的覆盖范围之外。此行为适用于全量、diff 和 staged 扫描；文本形式的 `.lynx.js` 仍会正常检查。其他生成文件可通过 `ignore.files` 排除。
+
 `agent.command` 仅在显式传入不带命令的 `--agent` 时使用。独立安装/npx 运行时，Doctor 会为配置解析 `defineConfig`；配置导入的其他项目依赖仍需先安装。
