@@ -1,6 +1,6 @@
 ---
 title: 规则概览
-description: Lynx Doctor 内置规则概览，按 reactlynx、lynx-ui 和 rspeedy skill source 分组。
+description: Lynx Doctor 内置规则概览，按 reactlynx、lynx-ui、rspeedy 和 lynx-css skill source 分组。
 ---
 
 # 规则概览
@@ -12,11 +12,13 @@ Lynx Doctor 规则来自 Lynx 社区 skills 的可执行化整理。规则包含
 - [rspeedy](./rspeedy)
 - [lynx-css](./lynx-css)
 
-CLI 的 `category` 使用一级领域：`reactlynx`、`lynx-ui` 或 `rspeedy`。
+CLI 的 `category` 使用一级领域：`reactlynx`、`lynx-ui`、`rspeedy` 或 `lynx-css`。
 
 ## reactlynx
 
 Source skill：[`reactlynx-best-practices`](https://github.com/lynx-community/skills/tree/release/skills/reactlynx-best-practices)
+
+Additional sources: [`lynx-typescript`](https://github.com/lynx-community/skills/blob/715f74063c53ec3d50e68b28b90e163b33cbc6b6/skills/lynx-typescript/SKILL.md) · [`lynx-api-docs`](https://github.com/lynx-community/skills/blob/715f74063c53ec3d50e68b28b90e163b33cbc6b6/skills/lynx-api-docs/SKILL.md)
 
 ### threading
 
@@ -39,6 +41,13 @@ Source skill：[`reactlynx-best-practices`](https://github.com/lynx-community/sk
 ### performance
 
 - `reactlynx/lazy-without-suspense`：检测同文件中没有明显 `Suspense` 边界的 lazy component loading。
+
+### elements 和 packaging
+
+- `reactlynx/no-dom-elements`：提示 Lynx 源码中的常见 Web 元素。
+- `reactlynx/native-element-events`：检查已知原生元素上的 Web 事件属性。
+- `reactlynx/library-runtime-entry`：提示组件库把 TS/TSX 暴露为常规运行时入口。
+- `reactlynx/library-missing-artifact`：使用 `--package` 时，检查构建后的运行时和声明入口文件。
 
 ## lynx-ui
 
@@ -76,3 +85,7 @@ npx lynx-doctor@latest rules list
 ```bash
 npx lynx-doctor@latest rules explain reactlynx/background-only-api
 ```
+
+## lynx-css
+
+[CSS 兼容性](./lynx-css) 包含 `lynx-css/unsupported`、`lynx-css/requires-newer-version` 和 `lynx-css/conditional-support`，并说明目标版本配置和未知覆盖情况。

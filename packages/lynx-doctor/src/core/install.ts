@@ -1,21 +1,73 @@
 import fs from "node:fs";
 import path from "node:path";
-import type { InstallOptions, InstallResult } from "./types.js";
+import { execFileSync } from "node:child_process";
+import { VERSION, type InstallOptions, type InstallResult } from "./types.js";
 import { findNearestPackageRoot } from "./project.js";
 
-const WORKFLOW = `name: Lynx Doctor
+const doctorCommand = `npx --yes lynx-doctor@${VERSION}`;
+interface PackageJson {
+  scripts?: Record<string, string>;
+  packageManager?: string;
+  [key: string]: unknown;
+}
+
+const readPackageJson = (filePath: string): PackageJson => {
+  try {
+    const value: unknown = JSON.parse(fs.readFileSync(filePath, "utf8"));
+    if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("expected an object");
+    return value as PackageJson;
+  } catch (error) {
+    throw new Error(`Cannot read ${filePath}: ${error instanceof Error ? error.message : String(error)}`);
+  }
+};
+
+const repositoryRoot = (directory: string): string => {
+  try {
+    return execFileSync("git", ["rev-parse", "--show-toplevel"], {
+      cwd: directory, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"]
+    }).trim();
+  } catch { return directory; }
+};
+
+const dependencySteps = (gitRoot: string, project: string): string => {
+  const root = fs.existsSync(path.join(gitRoot, "package.json")) ? gitRoot : project;
+  // Windows temp paths can use 8.3 aliases while Git reports long paths.
+  const directory = path.relative(fs.realpathSync.native(gitRoot), fs.realpathSync.native(root)).split(path.sep).join("/") || ".";
+  const has = (name: string) => fs.existsSync(path.join(root, name));
+  const manager = has("package.json") ? readPackageJson(path.join(root, "package.json")).packageManager ?? "" : "";
+  let setup = "";
+  let command: string;
+  if (has("pnpm-lock.yaml") || manager.startsWith("pnpm@")) {
+    command = `npm install --global corepack@latest\ncorepack enable\npnpm install${has("pnpm-lock.yaml") ? " --frozen-lockfile" : ""}`;
+  } else if (has("yarn.lock") || manager.startsWith("yarn@")) {
+    const classic = manager.startsWith("yarn@1.") || (has("yarn.lock") && fs.readFileSync(path.join(root, "yarn.lock"), "utf8").includes("# yarn lockfile v1"));
+    command = `npm install --global corepack@latest\ncorepack enable\nyarn install${has("yarn.lock") ? classic ? " --frozen-lockfile" : " --immutable" : ""}`;
+  } else if (has("bun.lock") || has("bun.lockb") || manager.startsWith("bun@")) {
+    setup = "      - uses: oven-sh/setup-bun@v2\n";
+    command = `bun install${has("bun.lock") || has("bun.lockb") ? " --frozen-lockfile" : ""}`;
+  } else {
+    command = has("package-lock.json") || has("npm-shrinkwrap.json") ? "npm ci" : "npm install";
+  }
+  return `${setup}      - name: Install project dependencies
+        working-directory: ${JSON.stringify(directory)}
+        run: |
+${command.split("\n").map((line) => `          ${line}`).join("\n")}
+`;
+};
+
+const workflow = (root: string, project: string): string => {
+  const directory = path.relative(fs.realpathSync.native(root), fs.realpathSync.native(project)).split(path.sep).join("/") || ".";
+  return `name: Lynx Doctor
 
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
   push:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
-  pull-requests: write
-  issues: write
-  statuses: write
 
 concurrency:
   group: lynx-doctor-\${{ github.event.pull_request.number || github.ref }}
@@ -24,99 +76,69 @@ concurrency:
 jobs:
   lynx-doctor:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${JSON.stringify(directory)}
     steps:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
+          persist-credentials: false
+          ref: \${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-node@v5
         with:
-          node-version: 22
-      - run: npx lynx-doctor@latest --diff --blocking warning
+          node-version: 22.20.0
+${dependencySteps(root, project)}      - name: Check pull request changes
+        if: github.event_name == 'pull_request'
+        env:
+          DOCTOR_BASE: \${{ github.event.pull_request.base.sha }}
+        run: ${doctorCommand} --diff "$DOCTOR_BASE" --blocking warning
+      - name: Check full project
+        if: github.event_name != 'pull_request'
+        run: ${doctorCommand} --blocking warning
 `;
+};
 
-const AGENT_GUIDE = `# Lynx Doctor Agent Notes
+const agentGuide = `# Lynx Doctor Agent Notes
 
-When Lynx Doctor reports findings, fix the highest severity rules first:
+Fix the highest severity findings first. Read each rule's pinned source and the affected files before editing. Correct the root cause instead of suppressing diagnostics.
 
-- reactlynx: fix thread-boundary, lifecycle, main-thread handler, global props, lazy-loading, and TypeScript findings first.
-- lynx-ui: verify public imports, documented component APIs, and gesture configuration before changing component behavior.
-- rspeedy: measure bundle-size findings before changing code, then remove structural blockers such as barrels or eval.
-
-After changing code, re-run:
+After changing code, re-run the same installed version:
 
 \`\`\`bash
-npx lynx-doctor@latest --verbose
+${doctorCommand} --verbose
 \`\`\`
+
+For CSS compatibility, configure minimum Lynx engine versions in targets. For component libraries, build first and then run with --package. After staged scans, stage reviewed fixes and check the index again before committing.
 `;
-
-interface PackageJson {
-  scripts?: Record<string, string>;
-  [key: string]: unknown;
-}
-
-const readPackageJson = (packageJsonPath: string): PackageJson | null => {
-  try {
-    return JSON.parse(fs.readFileSync(packageJsonPath, "utf8")) as PackageJson;
-  } catch {
-    return null;
-  }
-};
-
-const writeIfChanged = (
-  filePath: string,
-  content: string,
-  dryRun: boolean,
-  changedFiles: string[],
-): void => {
-  const existing = fs.existsSync(filePath) ? fs.readFileSync(filePath, "utf8") : null;
-  if (existing === content) return;
-  changedFiles.push(filePath);
-  if (dryRun) return;
-  fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.writeFileSync(filePath, content);
-};
-
-const installPackageScript = (rootDirectory: string, dryRun: boolean, changedFiles: string[]): string | null => {
-  const packageJsonPath = path.join(rootDirectory, "package.json");
-  const packageJson = readPackageJson(packageJsonPath);
-  if (!packageJson) return "No package.json found; skipped package script.";
-  const scripts = { ...(packageJson.scripts ?? {}) };
-  if (scripts.doctor === "lynx-doctor --diff") return null;
-  scripts.doctor = scripts.doctor ?? "lynx-doctor --diff";
-  const nextPackageJson = {
-    ...packageJson,
-    scripts
-  };
-  changedFiles.push(packageJsonPath);
-  if (!dryRun) fs.writeFileSync(packageJsonPath, `${JSON.stringify(nextPackageJson, null, 2)}\n`);
-  return "Added package script: doctor -> lynx-doctor --diff";
-};
 
 export const installLynxDoctor = (options: InstallOptions): InstallResult => {
   const rootDirectory = findNearestPackageRoot(options.rootDirectory);
+  const packagePath = path.join(rootDirectory, "package.json");
+  const pkg = readPackageJson(packagePath);
   const dryRun = Boolean(options.dryRun);
   const changedFiles: string[] = [];
   const messages: string[] = [];
-
-  const scriptMessage = installPackageScript(rootDirectory, dryRun, changedFiles);
-  if (scriptMessage) messages.push(scriptMessage);
-
-  writeIfChanged(
-    path.join(rootDirectory, ".github", "workflows", "lynx-doctor.yml"),
-    WORKFLOW,
-    dryRun,
-    changedFiles,
-  );
-  messages.push("Installed GitHub Actions workflow for pull request scans.");
-
-  const agentGuidePath = path.join(rootDirectory, ".agents", "lynx-doctor.md");
-  writeIfChanged(agentGuidePath, AGENT_GUIDE, dryRun, changedFiles);
-  messages.push("Wrote .agents/lynx-doctor.md for coding agents.");
-
-  return {
-    rootDirectory,
-    changedFiles,
-    messages,
-    dryRun
+  if (pkg.scripts?.doctor !== undefined) {
+    messages.push("Kept existing doctor script.");
+  } else {
+    const next = { ...pkg, scripts: { ...(pkg.scripts ?? {}), doctor: doctorCommand } };
+    changedFiles.push(packagePath);
+    if (!dryRun) fs.writeFileSync(packagePath, `${JSON.stringify(next, null, 2)}\n`);
+    messages.push(`${dryRun ? "Would add" : "Added"} doctor script: ${doctorCommand}`);
+  }
+  const createOnly = (filePath: string, content: () => string): void => {
+    if (fs.existsSync(filePath)) { messages.push(`Kept existing ${filePath}.`); return; }
+    const next = content();
+    changedFiles.push(filePath);
+    if (!dryRun) {
+      fs.mkdirSync(path.dirname(filePath), { recursive: true });
+      fs.writeFileSync(filePath, next);
+    }
+    messages.push(`${dryRun ? "Would create" : "Created"} ${filePath}.`);
   };
+  const gitRoot = repositoryRoot(rootDirectory);
+  createOnly(path.join(gitRoot, ".github", "workflows", "lynx-doctor.yml"), () => workflow(gitRoot, rootDirectory));
+  createOnly(path.join(rootDirectory, ".agents", "lynx-doctor.md"), () => agentGuide);
+  return { rootDirectory, changedFiles, messages, dryRun };
 };

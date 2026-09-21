@@ -75,6 +75,8 @@ npx lynx-doctor@latest --diff --agent codex
 
 When a scan finds issues in an interactive terminal, you can also choose an agent from the menu. See the [agent guide](https://lynx-community.github.io/lynx-doctor/guide/agent-workflow.html) for details.
 
+Successful handoffs are verified by Doctor; the new report determines the exit status. Staged checks still require reviewed fixes to be staged. Handoffs use text output; run JSON/score modes separately.
+
 ## Add to CI
 
 Run this once in your project:
@@ -85,13 +87,16 @@ npx lynx-doctor@latest install
 
 This adds a `doctor` script, a GitHub Actions workflow, and `.agents/lynx-doctor.md` with instructions for coding agents. The default workflow checks changed files on pull requests and fails on errors or warnings. See [CI setup](https://lynx-community.github.io/lynx-doctor/guide/ci.html) to adjust that behavior.
 
+The installer pins the running version in an executable npx script, preserves existing setup, and places monorepo workflows at the Git root. Preview changes with `install --dry-run`.
+
 ## What It Checks
 
 | Area | Examples |
 | --- | --- |
-| `reactlynx` | Thread boundaries, lifecycle hooks, main-thread handlers, `globalPropsMode`, lazy loading, and TypeScript setup |
+| `reactlynx` | Thread boundaries, lifecycle hooks, main-thread handlers, `globalPropsMode`, lazy loading, TypeScript setup, native element contracts, and component library entries |
 | `lynx-ui` | Component imports, supported props, and gesture configuration |
 | `rspeedy` | Bundle-size risks such as re-exporting every module with `export *` and using `eval()` |
+| `lynx-css` | CSS property/feature support by rendering backend and minimum Lynx engine version |
 
 List rules:
 
@@ -120,12 +125,13 @@ lynx-doctor [directory] [options]
 | `--json` | Output a structured scan report |
 | `--score` | Print only the numeric health score |
 | `--diff [base]` | Scan files changed against a base ref |
-| `--staged` | Scan only staged files |
-| `--category <category>` | Show one category, repeatable: `reactlynx`, `lynx-ui`, or `rspeedy` |
+| `--staged` | Read source from the Git index |
+| `--package` | Check existing component library runtime/declaration entry files after building |
+| `--category <category>` | Show one category, repeatable: `reactlynx`, `lynx-ui`, `rspeedy`, or `lynx-css` |
 | `--no-warnings` | Hide warning-severity diagnostics |
 | `--blocking <level>` | Fail threshold: `error`, `warning`, or `none` |
 | `--agent-prompt` | Print a focused agent repair prompt |
-| `--agent <command>` | Pipe the repair prompt to a local agent command |
+| `--agent [command]` | Launch an agent and verify its changes; defaults to configured command or Codex |
 | `--no-agent-select` | Disable the interactive agent selection prompt |
 
 See the [CLI reference](https://lynx-community.github.io/lynx-doctor/reference/cli.html) for command details.
@@ -138,6 +144,7 @@ Create `lynx-doctor.config.ts`, `lynx-doctor.config.mjs`, or `lynx-doctor.config
 import { defineConfig } from "lynx-doctor";
 
 export default defineConfig({
+  targets: { android: "3.5", ios: "3.6" },
   ignore: {
     files: ["src/generated/**"]
   },
@@ -152,6 +159,8 @@ export default defineConfig({
   }
 });
 ```
+
+`targets` uses Lynx engine versions, independently of the ReactLynx npm version. CSS checks are opt-in and leave missing data unknown. Reports expose `scope`, `cssCoverage`, and `notices`; a numeric score is not a coverage guarantee. `agent.command` is used only with explicit bare `--agent`.
 
 ### Node API
 

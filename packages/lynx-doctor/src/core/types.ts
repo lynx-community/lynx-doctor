@@ -1,4 +1,5 @@
-export const VERSION = "0.0.1";
+declare const __LYNX_DOCTOR_VERSION__: string;
+export const VERSION: string = __LYNX_DOCTOR_VERSION__;
 
 export const CATEGORIES = ["reactlynx", "lynx-ui", "rspeedy", "lynx-css"] as const;
 
@@ -140,6 +141,11 @@ export interface ScanReport {
   readonly score: number;
   readonly summary: ScanSummary;
   readonly blocking: BlockingLevel;
+  readonly scope?: {
+    readonly mode: "full" | "diff" | "staged";
+    readonly base?: string;
+    readonly applicableSourceFiles: number;
+  };
   readonly cssCoverage?: CssCoverage;
   readonly notices?: readonly string[];
 }

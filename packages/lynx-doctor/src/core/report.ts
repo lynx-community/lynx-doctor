@@ -65,9 +65,12 @@ export const formatReport = (report: ScanReport, options: FormatReportOptions = 
       `${report.scannedFiles.length} files in ${formatDuration(report.durationMs)}`,
     )}`,
   );
+  if (report.scope) lines.push(pc.dim(`scope: ${report.scope.mode}${report.scope.base ? ` (${report.scope.base})` : ""}; ${report.scope.applicableSourceFiles} applicable source files`));
   if (report.configPath) lines.push(pc.dim(`config: ${report.configPath}`));
   lines.push("");
-  lines.push(
+  if (report.scope?.applicableSourceFiles === 0 && report.diagnostics.length === 0) {
+    lines.push(pc.yellow("No applicable Lynx source files were checked; project configuration checks only."));
+  } else lines.push(
     `${colorByScore(report.score, `${report.score}/100`)} ${colorByScore(
       report.score,
       scoreLabel(report.score),

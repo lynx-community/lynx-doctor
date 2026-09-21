@@ -1,6 +1,6 @@
 ---
 title: Rules Overview
-description: Overview of built-in Lynx Doctor rules grouped by reactlynx, lynx-ui, and rspeedy skill sources.
+description: Overview of built-in Lynx Doctor rules grouped by reactlynx, lynx-ui, rspeedy, and lynx-css skill sources.
 ---
 
 # Rules Overview
@@ -12,11 +12,13 @@ Lynx Doctor rules are an executable distillation of Lynx community skills. Rules
 - [rspeedy](./rspeedy)
 - [lynx-css](./lynx-css)
 
-The CLI `category` field uses the first-level domain: `reactlynx`, `lynx-ui`, or `rspeedy`.
+The CLI `category` field uses the first-level domain: `reactlynx`, `lynx-ui`, `rspeedy`, or `lynx-css`.
 
 ## reactlynx
 
 Source skill: [`reactlynx-best-practices`](https://github.com/lynx-community/skills/tree/release/skills/reactlynx-best-practices)
+
+Additional sources: [`lynx-typescript`](https://github.com/lynx-community/skills/blob/715f74063c53ec3d50e68b28b90e163b33cbc6b6/skills/lynx-typescript/SKILL.md) · [`lynx-api-docs`](https://github.com/lynx-community/skills/blob/715f74063c53ec3d50e68b28b90e163b33cbc6b6/skills/lynx-api-docs/SKILL.md)
 
 ### threading
 
@@ -39,6 +41,13 @@ Source skill: [`reactlynx-best-practices`](https://github.com/lynx-community/ski
 ### performance
 
 - `reactlynx/lazy-without-suspense`: detects lazy component loading without an obvious `Suspense` boundary in the same file.
+
+### elements and packaging
+
+- `reactlynx/no-dom-elements`: warns about common Web elements in Lynx source.
+- `reactlynx/native-element-events`: checks Web event props on known native elements.
+- `reactlynx/library-runtime-entry`: warns about universal TS/TSX runtime entries in component libraries.
+- `reactlynx/library-missing-artifact`: with `--package`, checks literal runtime/declaration files after building.
 
 ## lynx-ui
 
@@ -76,3 +85,7 @@ Explain one rule:
 ```bash
 npx lynx-doctor@latest rules explain reactlynx/background-only-api
 ```
+
+## lynx-css
+
+See [CSS compatibility](./lynx-css) for `lynx-css/unsupported`, `lynx-css/requires-newer-version`, and `lynx-css/conditional-support`, including explicit targets and unknown coverage.

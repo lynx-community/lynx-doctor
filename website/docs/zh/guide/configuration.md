@@ -34,3 +34,5 @@ npx lynx-doctor@latest --category reactlynx --json
 ```
 
 `targets` 声明各渲染后端最低支持的 **Lynx 引擎**版本，不使用 ReactLynx npm 包版本。支持的后端与检查边界见 [CSS 兼容性](../rules/lynx-css)。
+
+`agent.command` 仅在显式传入不带命令的 `--agent` 时使用。独立安装/npx 运行时，Doctor 会为配置解析 `defineConfig`；配置导入的其他项目依赖仍需先安装。

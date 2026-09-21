@@ -1,4 +1,7 @@
+import { readFileSync } from "node:fs";
 import { defineConfig } from "@rslib/core";
+
+const packageJson = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8")) as { version: string };
 
 export default defineConfig({
   lib: [
@@ -9,6 +12,7 @@ export default defineConfig({
     }
   ],
   source: {
+    define: { __LYNX_DOCTOR_VERSION__: JSON.stringify(packageJson.version) },
     entry: {
       index: "./src/index.ts",
       cli: "./src/cli/index.ts"

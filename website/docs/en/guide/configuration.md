@@ -34,3 +34,5 @@ npx lynx-doctor@latest --category reactlynx --json
 ```
 
 `targets` declares minimum **Lynx engine** versions per backend. It does not use the ReactLynx npm version. See [CSS compatibility](../rules/lynx-css) for coverage and supported backends.
+
+`agent.command` is used only when you explicitly pass bare `--agent`. The installed Doctor resolves `defineConfig` for standalone/npx configs; other imported project packages must still be installed.
