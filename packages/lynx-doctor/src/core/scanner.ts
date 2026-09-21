@@ -4,6 +4,7 @@ import fg from "fast-glob";
 import picomatch from "picomatch";
 import ts from "typescript";
 import { analyzeSource, checkThreadSyntax, type SourceAnalysis } from "./syntax.js";
+import { checkCss, CSS_DATA_VERSION } from "./css.js";
 import { readCompilerOptions } from "./typescript-config.js";
 import { RULE_BY_ID } from "../rules/catalog.js";
 import { resolveConfig } from "./config.js";
@@ -13,6 +14,7 @@ import type {
   BlockingLevel,
   Category,
   Diagnostic,
+  CssCoverage,
   LynxDoctorConfig,
   ProjectInfo,
   RuleDefinition,
@@ -21,7 +23,7 @@ import type {
   Severity
 } from "./types.js";
 
-const SOURCE_GLOBS = ["**/*.{ts,tsx,js,jsx,mts,cts,mjs,cjs}"];
+const SOURCE_GLOBS = ["**/*.{ts,tsx,js,jsx,mts,cts,mjs,cjs,css}"];
 const DEFAULT_BLOCKING: BlockingLevel = "error";
 const LYNX_UI_GESTURE_COMPONENTS = ["Draggable", "Sheet", "Slider", "Sortable", "SwipeAction", "Swiper"];
 
@@ -373,6 +375,13 @@ export const scanProject = async (options: ScanOptions = {}): Promise<ScanReport
   const newGestureEnabled = hasNewGestureEnabled(project);
 
   checkProjectConfiguration(project, diagnostics);
+  const targets = resolvedConfig.config.targets ?? {};
+  const cssSelected = (!options.categories?.length || options.categories.some((category) => normalizeCategory(category) === "lynx-css")) &&
+    resolvedConfig.config.categories?.["lynx-css"] !== "off";
+  const cssStatus: CssCoverage["status"] = !cssSelected ? "disabled" : Object.keys(targets).length ? "checked" : "not-configured";
+  let cssFiles = 0;
+  let cssDeclarations = 0;
+  let cssUnknown = 0;
 
   for (const filePath of selection.files) {
     const content = selection.readFile(filePath);
@@ -387,6 +396,18 @@ export const scanProject = async (options: ScanOptions = {}): Promise<ScanReport
       hasGlobalPropsEventMode: eventMode,
       hasNewGestureEnabled: newGestureEnabled
     };
+    if (filePath.endsWith(".css")) {
+      cssFiles++;
+      if (cssStatus === "checked") {
+        const result = checkCss(filePath, content, targets);
+        cssDeclarations += result.declarations;
+        cssUnknown += result.unknownComparisons;
+        for (const finding of result.findings) {
+          addDiagnostic(diagnostics, { ...finding, filePath: context.relativePath, sourceLine: context.lines[finding.line - 1] ?? "" });
+        }
+      }
+      continue;
+    }
     const analysis = analyzeSource(filePath, content);
     if (!isLynxSourceContext(project, analysis)) continue;
     for (const finding of checkThreadSyntax(analysis)) {
@@ -436,6 +457,11 @@ export const scanProject = async (options: ScanOptions = {}): Promise<ScanReport
       fileCount: affectedFiles.size,
       ruleCount: affectedRules.size
     },
-    blocking
+    blocking,
+    cssCoverage: { status: cssStatus, dataVersion: CSS_DATA_VERSION, targets, files: cssFiles, declarations: cssDeclarations, unknownComparisons: cssUnknown },
+    notices: [
+      ...(cssFiles && cssStatus === "not-configured" ? ["CSS compatibility was not checked: configure targets with minimum Lynx engine versions."] : []),
+      ...(cssUnknown ? [`CSS compatibility data is unknown for ${cssUnknown} property/feature and target comparisons; these are not classified as supported or unsupported.`] : [])
+    ]
   };
 };

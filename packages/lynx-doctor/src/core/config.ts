@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { createJiti } from "jiti";
-import type { LynxDoctorConfig, ResolvedConfig, SeverityOverride } from "./types.js";
+import { CSS_BACKENDS, type CssBackend, type CssTargets, type LynxDoctorConfig, type ResolvedConfig, type SeverityOverride } from "./types.js";
 import { readPackageJsonConfig } from "./project.js";
 
 const CONFIG_FILE_NAMES = [
@@ -32,6 +32,21 @@ const normalizeSeverityMap = (value: unknown): Record<string, SeverityOverride> 
 
 export const normalizeConfig = (value: unknown): LynxDoctorConfig => {
   if (!isRecord(value)) return {};
+  let targets: CssTargets | undefined;
+  if (value.targets !== undefined) {
+    if (!isRecord(value.targets)) throw new Error("targets must map rendering backends to numeric Lynx engine versions.");
+    const parsed: Partial<Record<CssBackend, string>> = {};
+    for (const [backend, version] of Object.entries(value.targets)) {
+      if (!(CSS_BACKENDS as readonly string[]).includes(backend)) {
+        throw new Error(`Unknown CSS target ${backend}. Use one of: ${CSS_BACKENDS.join(", ")}.`);
+      }
+      if (typeof version !== "string" || !/^\d+(?:\.\d+){0,2}$/.test(version)) {
+        throw new Error(`targets.${backend} must be a numeric Lynx engine version such as "3.6".`);
+      }
+      parsed[backend as CssBackend] = version;
+    }
+    targets = parsed;
+  }
   const ignoreFiles =
     isRecord(value.ignore) && Array.isArray(value.ignore.files)
       ? value.ignore.files.filter((item): item is string => typeof item === "string")
@@ -44,6 +59,7 @@ export const normalizeConfig = (value: unknown): LynxDoctorConfig => {
     : undefined;
 
   return {
+    ...(targets ? { targets } : {}),
     ...(ignore ? { ignore } : {}),
     ...(rules ? { rules } : {}),
     ...(categories ? { categories } : {}),

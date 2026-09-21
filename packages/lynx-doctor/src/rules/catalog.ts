@@ -4,7 +4,7 @@ const SKILLS_REPO = "lynx-community/skills";
 const SKILLS_REF = "715f74063c53ec3d50e68b28b90e163b33cbc6b6";
 
 const sourceFromSkill = (
-  skill: "reactlynx-best-practices" | "lynx-ui" | "rspeedy-bundle-size" | "lynx-typescript",
+  skill: "reactlynx-best-practices" | "lynx-ui" | "rspeedy-bundle-size" | "lynx-typescript" | "lynx-check-css-support",
   protocol: "frontmatter-rules" | "reference-routing" | "component-api" | "bundle-size-reference",
   docsPath: string,
   supportingPaths: readonly string[] = ["SKILL.md"],
@@ -29,6 +29,45 @@ const defineRule = (
 });
 
 export const RULES: readonly RuleDefinition[] = [
+  defineRule({
+    id: "lynx-css/unsupported",
+    title: "CSS is unsupported on a target backend",
+    category: "lynx-css",
+    subcategory: "compatibility",
+    defaultSeverity: "error",
+    impact: "medium",
+    summary: "Checks explicit backend incompatibility for CSS properties and known literal features.",
+    why: "CSS support differs by rendering backend and Lynx engine version.",
+    fix: "Replace this property/value with a supported alternative or narrow the configured targets.",
+    source: sourceFromSkill("lynx-check-css-support", "reference-routing", "SKILL.md"),
+    tags: ["css", "compatibility", "platform", "engine-version"]
+  }),
+  defineRule({
+    id: "lynx-css/requires-newer-version",
+    title: "CSS requires a newer Lynx engine",
+    category: "lynx-css",
+    subcategory: "compatibility",
+    defaultSeverity: "error",
+    impact: "medium",
+    summary: "Compares CSS compatibility minima against each configured Lynx engine target.",
+    why: "CSS support differs by rendering backend and Lynx engine version.",
+    fix: "Use an alternative supported by the minimum target, or raise the minimum engine version after verifying host support.",
+    source: sourceFromSkill("lynx-check-css-support", "reference-routing", "SKILL.md"),
+    tags: ["css", "compatibility", "platform", "engine-version"]
+  }),
+  defineRule({
+    id: "lynx-css/conditional-support",
+    title: "CSS support is conditional or partial",
+    category: "lynx-css",
+    subcategory: "compatibility",
+    defaultSeverity: "warning",
+    impact: "medium",
+    summary: "Preserves conditional requirements and partial implementation notes from the compatibility dataset.",
+    why: "CSS support differs by rendering backend and Lynx engine version.",
+    fix: "Review the reported condition or partial implementation notes and verify the feature on the target runtime.",
+    source: sourceFromSkill("lynx-check-css-support", "reference-routing", "SKILL.md"),
+    tags: ["css", "compatibility", "platform", "engine-version"]
+  }),
   defineRule({
     id: "reactlynx/background-only-api",
     title: "Background-only API used from shared or render code",
