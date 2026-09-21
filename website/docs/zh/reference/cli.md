@@ -39,3 +39,9 @@ npx lynx-doctor@latest install
 | `--agent-prompt` | 打印可交给 agent 的修复提示 |
 | `--agent <command>` | 启动本地 agent 命令并把提示写入 stdin |
 | `--no-agent-select` | 关闭扫描后的交互式 agent 选择 |
+
+## 增量扫描范围
+
+--diff 合并分支相对 merge base 的改动、暂存改动、未暂存改动和未跟踪文件。PR 目标不是 main 或 master 时，请显式指定实际目标分支。两种增量模式都会遵守与全量扫描相同的文件忽略规则和 package 边界，并跳过已删除文件。
+
+--staged 从 Git index 读取源码，包括已暂存但在工作区中删除的文件。项目依赖和配置仍从工作区读取。两种增量模式不能同时启用；无效 base 或非 Git 目录会直接报错，不会悄悄变成全量扫描。
