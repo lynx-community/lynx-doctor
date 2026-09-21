@@ -1,6 +1,6 @@
 ---
 title: 快速开始
-description: 从安装运行到读取分数和诊断，快速在 Lynx 项目里完成第一次 Lynx Doctor 扫描。
+description: 在 Lynx 项目中运行检查，查看评分、问题位置和修改建议。
 ---
 
 # 快速开始
@@ -11,18 +11,18 @@ description: 从安装运行到读取分数和诊断，快速在 Lynx 项目里�
 npx lynx-doctor@latest
 ```
 
-CLI 会识别项目依赖、Rspeedy 配置、TypeScript 设置和源码文件，然后输出健康分数、问题数量、分类摘要和最高优先级诊断。
+Lynx Doctor 会检查项目依赖、Rspeedy 配置、TypeScript 设置和源文件。结果包含项目评分、错误和警告数量，以及需要优先处理的问题。
 
-只扫描当前改动：
+只检查有改动的文件：
 
 ```bash
 npx lynx-doctor@latest --diff
 ```
 
-生成给 agent 的修复提示：
+根据检查结果，生成可交给 Agent 的修复提示词：
 
 ```bash
 npx lynx-doctor@latest --diff --agent-prompt
 ```
 
-第一轮建议先修 `reactlynx` 的 error，再处理低风险 warning。修完后重新运行 `npx lynx-doctor@latest --verbose`，确认问题确实消失。
+建议先修复 `reactlynx` 分类下的错误（error），再处理警告（warning）。修改后运行 `npx lynx-doctor@latest --verbose`，确认相关问题不再出现。

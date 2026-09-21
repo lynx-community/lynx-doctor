@@ -1,55 +1,53 @@
+<p align="center">
+  <img src="./website/docs/public/lynx-mascot-simple.png" alt="Lynx Doctor mascot wearing a doctor cap" width="112" height="112" />
+</p>
+
 <h1 align="center">Lynx Doctor</h1>
 
 <p align="center">
-  Diagnose Lynx projects before agents fix them.
+  <strong>A health check for your Lynx project.</strong><br />
+  Find threading, API, and build issues. Get fix suggestions and repair prompts for your agent.
 </p>
 
 <p align="center">
-  <a href="./README.zh-CN.md">中文</a>
+  <a href="https://lynx-community.github.io/lynx-doctor/">Documentation</a>
+  ·
+  <a href="https://lynx-community.github.io/lynx-doctor/guide/quickstart.html">Quickstart</a>
+  ·
+  <a href="./examples">Examples</a>
   ·
   <a href="./CONTRIBUTING.md">Contributing</a>
   ·
-  <a href="./website/docs/en/index.mdx">Docs</a>
-  ·
-  <a href="./examples">Examples</a>
+  <a href="./README.zh-CN.md">中文</a>
 </p>
 
 <p align="center">
   <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/node-%3E%3D22.12.0-339933" alt="Node.js 22.12+" /></a>
-  <a href="https://pnpm.io/"><img src="https://img.shields.io/badge/pnpm-%3E%3D10-F69220" alt="pnpm 10+" /></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue" alt="Apache License 2.0" /></a>
 </p>
 
-<p align="center">
-  <img src="./assets/readme-banner.svg" alt="Lynx Doctor banner: scan projects, clarify issues, and launch agents." width="100%" />
-</p>
+## Choose a workflow
 
-Lynx Doctor is a deterministic scanner and agent handoff CLI for Lynx projects. It finds Lynx-specific risks, explains why they matter, and generates focused repair prompts for coding agents.
-
-## Highlights
-
-| Workflow | What Lynx Doctor gives you |
-| --- | --- |
-| Scan a project | A health score, grouped diagnostics, source locations, and fix guidance |
-| Review changed files | `--diff` and `--staged` scans for pull request workflows |
-| Hand off to agents | Focused prompts that describe the highest-priority issues and verification steps |
-| Install in CI | A package script, GitHub Actions workflow, and agent notes |
-
-## Why
-
-Lynx projects have constraints that generic JavaScript linters do not understand:
-
-- code can cross main-thread and background-thread boundaries
-- some Lynx APIs are background-only
-- `main-thread:` handlers need explicit directives
-- Rspeedy and TypeScript configuration shape runtime behavior
-- lazy bundles need safe loading boundaries
-
-Lynx Doctor makes those constraints visible before an agent starts editing code.
+<table width="100%">
+  <tr>
+    <td align="center" valign="top" width="33%">
+      <a href="#quick-start"><img src="./assets/readme/scan.png" alt="The lynx doctor inspecting code with a magnifying glass" width="100%" /></a>
+      <p><strong><a href="#quick-start">Check your code →</a></strong><br />Find issues and the exact lines to fix.</p>
+    </td>
+    <td align="center" valign="top" width="33%">
+      <a href="#fix-with-an-agent"><img src="./assets/readme/agent.png" alt="The lynx doctor holding a repair checklist" width="100%" /></a>
+      <p><strong><a href="#fix-with-an-agent">Work with an agent →</a></strong><br />Turn the report into a repair prompt.</p>
+    </td>
+    <td align="center" valign="top" width="33%">
+      <a href="#add-to-ci"><img src="./assets/readme/ci.png" alt="The lynx doctor checking a three-step workflow" width="100%" /></a>
+      <p><strong><a href="#add-to-ci">Check pull requests →</a></strong><br />Run the checks in GitHub Actions.</p>
+    </td>
+  </tr>
+</table>
 
 ## Quick Start
 
-Run a scan from a Lynx project root:
+Requires **Node.js 22.12 or later**. Run a scan from your Lynx project root:
 
 ```bash
 npx lynx-doctor@latest
@@ -61,28 +59,39 @@ Scan only changed files:
 npx lynx-doctor@latest --diff
 ```
 
-Generate a repair prompt:
+## Fix with an Agent
+
+Generate a prompt with source locations, fix suggestions, and verification commands:
 
 ```bash
 npx lynx-doctor@latest --diff --agent-prompt
 ```
 
-Launch a local agent command directly:
+If you have a local coding agent set up, pass the prompt to it directly:
 
 ```bash
 npx lynx-doctor@latest --diff --agent codex
 ```
 
-When diagnostics are found in an interactive terminal, Lynx Doctor also offers
-an arrow-key agent selection prompt after the scan.
+When a scan finds issues in an interactive terminal, you can also choose an agent from the menu. See the [agent guide](https://lynx-community.github.io/lynx-doctor/guide/agent-workflow.html) for details.
+
+## Add to CI
+
+Run this once in your project:
+
+```bash
+npx lynx-doctor@latest install
+```
+
+This adds a `doctor` script, a GitHub Actions workflow, and `.agents/lynx-doctor.md` with instructions for coding agents. The default workflow checks changed files on pull requests and fails on errors or warnings. See [CI setup](https://lynx-community.github.io/lynx-doctor/guide/ci.html) to adjust that behavior.
 
 ## What It Checks
 
 | Area | Examples |
 | --- | --- |
-| reactlynx | thread boundaries, lifecycle behavior, main-thread handlers, `globalPropsMode`, lazy loading, and TypeScript setup |
-| lynx-ui | public component imports, documented component APIs, and gesture configuration |
-| rspeedy | bundle-size hazards such as export-star barrels and `eval()` |
+| `reactlynx` | Thread boundaries, lifecycle hooks, main-thread handlers, `globalPropsMode`, lazy loading, and TypeScript setup |
+| `lynx-ui` | Component imports, supported props, and gesture configuration |
+| `rspeedy` | Bundle-size risks such as re-exporting every module with `export *` and using `eval()` |
 
 List rules:
 
@@ -96,7 +105,10 @@ Explain one rule:
 npx lynx-doctor@latest rules explain reactlynx/background-only-api
 ```
 
-## CLI
+<details>
+<summary><strong>CLI options, configuration, and Node API</strong></summary>
+
+### CLI options
 
 ```bash
 lynx-doctor [directory] [options]
@@ -116,13 +128,9 @@ lynx-doctor [directory] [options]
 | `--agent <command>` | Pipe the repair prompt to a local agent command |
 | `--no-agent-select` | Disable the interactive agent selection prompt |
 
-Install CI and agent notes:
+See the [CLI reference](https://lynx-community.github.io/lynx-doctor/reference/cli.html) for command details.
 
-```bash
-npx lynx-doctor@latest install
-```
-
-## Configuration
+### Configuration
 
 Create `lynx-doctor.config.ts`, `lynx-doctor.config.mjs`, or `lynx-doctor.config.json` in the project root.
 
@@ -145,7 +153,7 @@ export default defineConfig({
 });
 ```
 
-## Node API
+### Node API
 
 ```ts
 import { buildAgentPrompt, formatReport, scanProject } from "lynx-doctor";
@@ -160,18 +168,20 @@ console.log(formatReport(report, { verbose: true }));
 console.log(buildAgentPrompt(report));
 ```
 
+</details>
+
 ## Examples
 
 The repository includes standalone Lynx projects under `examples/`.
 
 | Project | Purpose |
 | --- | --- |
-| `examples/healthy-shop` | A clean project that should scan at `100/100` |
-| `examples/threading-regressions` | Intentional `reactlynx` threading, lifecycle, and event errors |
-| `examples/event-mode-settings` | `reactlynx` configuration and lazy-loading warnings |
+| [healthy-shop](./examples/healthy-shop) | A passing example with a score of `100/100` |
+| [threading-regressions](./examples/threading-regressions) | Intentional threading, lifecycle, and event errors |
+| [event-mode-settings](./examples/event-mode-settings) | Configuration and lazy-loading warnings |
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for local development, docs, and example validation.
 
 ## License
 
-Apache License 2.0
+[Apache License 2.0](./LICENSE)

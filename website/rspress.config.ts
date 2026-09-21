@@ -108,11 +108,12 @@ export default defineConfig({
   root: "docs",
   base: siteBase,
   title: "Lynx Doctor",
+  logoText: "Lynx Doctor",
   description: "Scan Lynx projects, find Lynx-specific issues, and hand focused fixes to coding agents.",
-  icon: "/favicon.svg",
+  icon: "/lynx-mascot-simple.png",
   logo: {
-    light: "/favicon.svg",
-    dark: "/favicon.svg"
+    light: "/lynx-mascot-simple.png",
+    dark: "/lynx-mascot-simple.png"
   },
   lang: "en",
   locales: [
@@ -126,7 +127,7 @@ export default defineConfig({
       lang: "zh",
       label: "简体中文",
       title: "Lynx Doctor",
-      description: "扫描 Lynx 项目，发现 Lynx 专属问题，并把修复交给 coding agent。"
+      description: "Lynx 项目的代码检查工具。定位代码问题，提供修改建议，也支持用编程 Agent 辅助修复。"
     }
   ],
   themeConfig: {
