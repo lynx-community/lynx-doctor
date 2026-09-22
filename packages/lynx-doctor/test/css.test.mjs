@@ -96,7 +96,7 @@ test("CSS respects staged contents, ignores, rule overrides, and selected catego
   assert.deepEqual((await scanProject({ directory: root, categories: ["reactlynx"] })).diagnostics, []);
 });
 
-test("invalid CSS targets and malformed CSS fail explicitly", async (t) => {
+test("invalid CSS targets fail explicitly and malformed CSS is reported", async (t) => {
   const root = createProject(t);
   configure(root, { andriod: "3.5" });
   await assert.rejects(() => scanProject({ directory: root }), /Unknown CSS target andriod/);
@@ -104,5 +104,8 @@ test("invalid CSS targets and malformed CSS fail explicitly", async (t) => {
   await assert.rejects(() => scanProject({ directory: root }), /numeric Lynx engine version/);
   configure(root, { android: "3.5" });
   writeFile(root, "src/app.css", ".card { filter: brightness(0.5);");
-  await assert.rejects(() => scanProject({ directory: root }), /Unclosed block/);
+  const report = await scanProject({ directory: root });
+  assert.equal(report.ok, false);
+  assert.deepEqual(report.parseErrors, [{ filePath: "src/app.css", line: 1, column: 1, message: "Unclosed block" }]);
+  assert.equal(report.cssCoverage.files, 0);
 });

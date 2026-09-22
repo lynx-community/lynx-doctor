@@ -118,6 +118,23 @@ test("successful agents are verified and the updated report controls the exit st
   assert.equal(read(root, "App.tsx"), healthySource);
 });
 
+test("parse errors can be handed to an agent and must be resolved during verification", (t) => {
+  const root = createProject(t);
+  writeFile(root, "App.tsx", "export const App = () => <view");
+  const command = agentCommand(root, "process.exitCode = 0;");
+  const unresolved = run([root, "--agent", command, "--blocking", "none"]);
+  assert.equal(unresolved.status, 1);
+  assert.match(unresolved.stdout, /Verification after agent/);
+  assert.match(unresolved.stdout, /Scan incomplete/);
+
+  agentCommand(root, `require('node:fs').writeFileSync('App.tsx', ${JSON.stringify(healthySource)});`);
+  const fixed = run([root, "--agent", command]);
+  assert.equal(fixed.status, 0, fixed.stderr);
+  assert.match(fixed.stdout, /Verification after agent/);
+  assert.match(fixed.stdout, /100\/100 healthy/);
+  assert.equal(read(root, "App.tsx"), healthySource);
+});
+
 test("no-op or failed agents cannot turn unresolved findings into a successful run", (t) => {
   const root = createProject(t);
   writeFile(root, "App.tsx", unsafeSource);

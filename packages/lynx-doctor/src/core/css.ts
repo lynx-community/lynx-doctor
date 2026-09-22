@@ -3,6 +3,7 @@ import path from "node:path";
 import { createRequire } from "node:module";
 import postcss from "postcss";
 import parseValue from "postcss-value-parser";
+import { SourceParseError } from "./parse-error.js";
 import type { CssTargets } from "./types.js";
 
 export const CSS_DATA_VERSION = "0.0.16";
@@ -62,7 +63,13 @@ const valueFeatures = (feature: Feature, value: string): string[] => {
 };
 
 export const checkCss = (filePath: string, content: string, targets: CssTargets) => {
-  const root = postcss.parse(content, { from: filePath });
+  let root: postcss.Root;
+  try {
+    root = postcss.parse(content, { from: filePath });
+  } catch (error) {
+    if (!(error instanceof postcss.CssSyntaxError)) throw error;
+    throw new SourceParseError(filePath, error.line ?? 1, error.column ?? 1, error.reason);
+  }
   const data = readDefinitions();
   const findings: CssFinding[] = [];
   let declarations = 0;

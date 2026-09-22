@@ -21,8 +21,11 @@ const groupByRule = (diagnostics: readonly Diagnostic[]): [string, Diagnostic[]]
 
 export const buildAgentPrompt = (report: ScanReport): string => {
   const groups = groupByRule(report.diagnostics).slice(0, MAX_PROMPT_GROUPS);
+  const parseErrors = report.parseErrors ?? [];
+  const parseGroupCount = parseErrors.length > 0 ? 1 : 0;
+  const issueCount = groups.length + parseGroupCount;
   const lines: string[] = [
-    `Fix the top ${groups.length} Lynx Doctor ${groups.length === 1 ? "issue" : "issues"} in ${report.project.projectName}.`,
+    `Fix the top ${issueCount} Lynx Doctor ${issueCount === 1 ? "issue" : "issues"} in ${report.project.projectName}.`,
     "",
     "Work like this:",
     "1. Read the reported files before editing.",
@@ -32,10 +35,20 @@ export const buildAgentPrompt = (report: ScanReport): string => {
     ""
   ];
 
+  if (parseErrors.length > 0) {
+    lines.push("1. ERROR source parsing: some files could not be checked.");
+    lines.push("   Inspect the reported code and resolve the parse errors, then re-run Doctor to complete the scan.");
+    for (const error of parseErrors.slice(0, MAX_FILES_PER_GROUP)) {
+      lines.push(`   - ${error.filePath}:${error.line}:${error.column}: ${error.message}`);
+    }
+    if (parseErrors.length > MAX_FILES_PER_GROUP) lines.push(`   - +${parseErrors.length - MAX_FILES_PER_GROUP} more files`);
+    lines.push("");
+  }
+
   groups.forEach(([ruleId, diagnostics], index) => {
     const first = diagnostics[0];
     if (!first) return;
-    lines.push(`${index + 1}. ${first.severity.toUpperCase()} ${ruleId}: ${first.title}`);
+    lines.push(`${index + 1 + parseGroupCount}. ${first.severity.toUpperCase()} ${ruleId}: ${first.title}`);
     lines.push(`   Category: ${first.category}/${first.subcategory}`);
     lines.push(`   ${first.message}`);
     lines.push(`   Fix recipe: ${first.help}`);
@@ -54,7 +67,7 @@ export const buildAgentPrompt = (report: ScanReport): string => {
   });
 
   lines.push(
-    `Current score: ${report.score}/100. Current counts: ${report.summary.errorCount} errors, ${report.summary.warningCount} warnings.`,
+    `${parseErrors.length ? "Score unavailable: scan incomplete." : `Current score: ${report.score}/100.`} Current rule counts: ${report.summary.errorCount} errors, ${report.summary.warningCount} warnings.`,
   );
   return lines.join("\n");
 };

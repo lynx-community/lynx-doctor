@@ -1,4 +1,5 @@
 import ts from "typescript";
+import { SourceParseError } from "./parse-error.js";
 
 export type RuntimeFunction = ts.FunctionDeclaration | ts.FunctionExpression | ts.ArrowFunction |
   ts.MethodDeclaration | ts.GetAccessorDeclaration | ts.SetAccessorDeclaration | ts.ConstructorDeclaration;
@@ -50,7 +51,7 @@ export const analyzeSource = (filePath: string, content: string) => {
   if (errors.length) {
     const error = errors[0]!;
     const location = file.getLineAndCharacterOfPosition(error.start ?? 0);
-    throw new Error(`Cannot parse ${filePath}:${location.line + 1}:${location.character + 1}: ${ts.flattenDiagnosticMessageText(error.messageText, " ")}`);
+    throw new SourceParseError(filePath, location.line + 1, location.character + 1, ts.flattenDiagnosticMessageText(error.messageText, " "));
   }
   const checker = program.getTypeChecker();
   const nodes: ts.Node[] = [];
