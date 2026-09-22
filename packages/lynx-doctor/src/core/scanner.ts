@@ -9,6 +9,7 @@ import { checkElementSyntax } from "./elements.js";
 import { checkLibrary } from "./library.js";
 import { checkCss, CSS_DATA_VERSION } from "./css.js";
 import { readCompilerOptions } from "./typescript-config.js";
+import { SourceParseError } from "./parse-error.js";
 import { RULE_BY_ID } from "../rules/catalog.js";
 import { resolveConfig } from "./config.js";
 import { DEFAULT_IGNORE_PATTERNS, discoverProject } from "./project.js";
@@ -19,6 +20,7 @@ import type {
   Diagnostic,
   CssCoverage,
   LynxDoctorConfig,
+  ParseError,
   ProjectInfo,
   RuleDefinition,
   ScanOptions,
@@ -345,6 +347,16 @@ const listSourceFiles = async (
   return { files: files.sort(), readFile: readWorkingFile };
 };
 
+const parseFile = <T>(context: FileContext, parseErrors: ParseError[], parse: () => T): T | undefined => {
+  try {
+    return parse();
+  } catch (error) {
+    if (!(error instanceof SourceParseError)) throw error;
+    parseErrors.push({ filePath: context.relativePath, line: error.line, column: error.column, message: error.reason });
+    return undefined;
+  }
+};
+
 export const scanProject = async (options: ScanOptions = {}): Promise<ScanReport> => {
   if (options.package && (options.diff || options.staged)) {
     throw new Error("--package checks working-tree build artifacts; run it separately from --diff or --staged.");
@@ -356,6 +368,7 @@ export const scanProject = async (options: ScanOptions = {}): Promise<ScanReport
   const selection = await listSourceFiles(project.rootDirectory, options, resolvedConfig.config);
   const scannedFiles: string[] = [];
   const skippedFiles: string[] = [];
+  const parseErrors: ParseError[] = [];
   const diagnostics: Diagnostic[] = [];
   const eventMode = hasGlobalPropsEventMode(project);
   const newGestureEnabled = hasNewGestureEnabled(project);
@@ -382,7 +395,6 @@ export const scanProject = async (options: ScanOptions = {}): Promise<ScanReport
       continue;
     }
     const content = bytes.toString("utf8");
-    scannedFiles.push(filePath);
     const context: FileContext = {
       rootDirectory: project.rootDirectory,
       filePath,
@@ -393,19 +405,23 @@ export const scanProject = async (options: ScanOptions = {}): Promise<ScanReport
       hasNewGestureEnabled: newGestureEnabled
     };
     if (filePath.endsWith(".css")) {
-      cssFiles++;
       if (cssStatus === "checked") {
+        const result = parseFile(context, parseErrors, () => checkCss(filePath, content, targets));
+        if (!result) continue;
         applicableSourceFiles++;
-        const result = checkCss(filePath, content, targets);
         cssDeclarations += result.declarations;
         cssUnknown += result.unknownComparisons;
         for (const finding of result.findings) {
           addDiagnostic(diagnostics, { ...finding, filePath: context.relativePath, sourceLine: context.lines[finding.line - 1] ?? "" });
         }
       }
+      scannedFiles.push(filePath);
+      cssFiles++;
       continue;
     }
-    const analysis = analyzeSource(filePath, content);
+    const analysis = parseFile(context, parseErrors, () => analyzeSource(filePath, content));
+    if (!analysis) continue;
+    scannedFiles.push(filePath);
     if (!isLynxSourceContext(project, analysis)) continue;
     applicableSourceFiles++;
     for (const finding of [...checkThreadSyntax(analysis), ...checkElementSyntax(analysis)]) {
@@ -440,13 +456,14 @@ export const scanProject = async (options: ScanOptions = {}): Promise<ScanReport
   const blocking = options.blocking ?? DEFAULT_BLOCKING;
 
   return {
-    ok: !shouldBlock(filteredDiagnostics, blocking),
+    ok: parseErrors.length === 0 && !shouldBlock(filteredDiagnostics, blocking),
     generatedAt: new Date().toISOString(),
     durationMs: Date.now() - startedAt,
     project,
     configPath: resolvedConfig.path,
     scannedFiles: scannedFiles.map((filePath) => toPosixRelativePath(project.rootDirectory, filePath)),
     diagnostics: filteredDiagnostics,
+    parseErrors,
     score: scoreDiagnostics(filteredDiagnostics),
     summary: {
       errorCount: filteredDiagnostics.filter((diagnostic) => diagnostic.severity === "error").length,

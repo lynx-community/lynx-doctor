@@ -12,6 +12,7 @@ export {
   type InstallOptions,
   type InstallResult,
   type LynxDoctorConfig,
+  type ParseError,
   type ProjectInfo,
   type RuleDefinition,
   type RuleSource,

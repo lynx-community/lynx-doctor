@@ -59,6 +59,7 @@ const formatDiagnostic = (diagnostic: Diagnostic, verbose: boolean): string[] =>
 
 export const formatReport = (report: ScanReport, options: FormatReportOptions = {}): string => {
   const lines: string[] = [];
+  const parseErrors = report.parseErrors ?? [];
   lines.push(pc.bold("Lynx Doctor"));
   lines.push(
     `${report.project.projectName} (${report.project.framework}) ${pc.dim(
@@ -68,7 +69,10 @@ export const formatReport = (report: ScanReport, options: FormatReportOptions = 
   if (report.scope) lines.push(pc.dim(`scope: ${report.scope.mode}${report.scope.base ? ` (${report.scope.base})` : ""}; ${report.scope.applicableSourceFiles} applicable source files`));
   if (report.configPath) lines.push(pc.dim(`config: ${report.configPath}`));
   lines.push("");
-  if (report.scope?.applicableSourceFiles === 0 && report.diagnostics.length === 0) {
+  if (parseErrors.length > 0) {
+    lines.push(pc.red(`Scan incomplete: ${parseErrors.length} ${parseErrors.length === 1 ? "file could" : "files could"} not be parsed.`));
+    lines.push(pc.dim(`Rule findings from checked files: ${report.summary.errorCount} errors, ${report.summary.warningCount} warnings across ${report.summary.fileCount} files.`));
+  } else if (report.scope?.applicableSourceFiles === 0 && report.diagnostics.length === 0) {
     lines.push(pc.yellow("No applicable Lynx source files were checked; project configuration checks only."));
   } else lines.push(
     `${colorByScore(report.score, `${report.score}/100`)} ${colorByScore(
@@ -81,9 +85,24 @@ export const formatReport = (report: ScanReport, options: FormatReportOptions = 
 
   for (const notice of report.notices ?? []) lines.push(pc.yellow(`Note: ${notice}`));
 
-  if (report.diagnostics.length === 0) {
+  if (parseErrors.length > 0) {
     lines.push("");
-    lines.push(pc.green("No Lynx Doctor findings."));
+    const limit = options.verbose ? parseErrors.length : Math.min(8, parseErrors.length);
+    for (const error of parseErrors.slice(0, limit)) {
+      lines.push(`  ${pc.red("PARSE ERROR")} ${error.filePath}:${error.line}:${error.column}`);
+      lines.push(`    ${error.message}`);
+    }
+    if (parseErrors.length > limit) lines.push(pc.dim(`Run with --verbose to show ${parseErrors.length - limit} more parse errors.`));
+    lines.push("Resolve the parse errors and re-run to complete the scan.");
+  }
+
+  if (report.diagnostics.length === 0) {
+    if (parseErrors.length === 0) {
+      lines.push("");
+      lines.push(pc.green("No Lynx Doctor findings."));
+    } else if (options.showAgentPromptHint !== false) {
+      lines.push(pc.dim("Use --agent-prompt to hand the parse errors to a coding agent."));
+    }
     return lines.join("\n");
   }
 
@@ -113,7 +132,9 @@ export const formatReport = (report: ScanReport, options: FormatReportOptions = 
 
   lines.push("");
   lines.push(
-    report.ok
+    parseErrors.length > 0
+      ? pc.red("Scan remains incomplete because some files could not be parsed.")
+      : report.ok
       ? pc.green(`Passes current blocking policy (${report.blocking}).`)
       : pc.red(`Fails current blocking policy (${report.blocking}).`),
   );
@@ -123,4 +144,4 @@ export const formatReport = (report: ScanReport, options: FormatReportOptions = 
   return lines.join("\n");
 };
 
-export const formatScore = (report: ScanReport): string => `${report.score}`;
+export const formatScore = (report: ScanReport): string => report.parseErrors?.length ? "N/A" : `${report.score}`;

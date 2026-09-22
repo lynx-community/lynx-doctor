@@ -130,6 +130,13 @@ export interface ScanSummary {
   readonly ruleCount: number;
 }
 
+export interface ParseError {
+  readonly filePath: string;
+  readonly line: number;
+  readonly column: number;
+  readonly message: string;
+}
+
 export interface ScanReport {
   readonly ok: boolean;
   readonly generatedAt: string;
@@ -138,6 +145,8 @@ export interface ScanReport {
   readonly configPath: string | null;
   readonly scannedFiles: readonly string[];
   readonly diagnostics: readonly Diagnostic[];
+  /** Files that could not be parsed. Any entry makes the scan incomplete and ok false. */
+  readonly parseErrors?: readonly ParseError[];
   readonly score: number;
   readonly summary: ScanSummary;
   readonly blocking: BlockingLevel;

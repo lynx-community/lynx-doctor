@@ -130,8 +130,13 @@ export const Web = () => { useLayoutEffect(() => {}, []); return <div />; };`);
   assert.deepEqual(report.diagnostics, []);
 });
 
-test("invalid source syntax fails with location instead of a healthy report", async (t) => {
-  await assert.rejects(() => scanSource(t, "export const App = () => <view"), /Cannot parse .*App.tsx:1:/);
+test("invalid source syntax is reported with location instead of a healthy report", async (t) => {
+  const report = await scanSource(t, "export const App = () => <view");
+  assert.equal(report.ok, false);
+  assert.equal(report.parseErrors.length, 1);
+  assert.equal(report.parseErrors[0].filePath, "src/App.tsx");
+  assert.equal(report.parseErrors[0].line, 1);
+  assert.deepEqual(report.scannedFiles, []);
 });
 
 test("TypeScript JSONC and multiple extends use effective compiler options", async (t) => {

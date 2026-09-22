@@ -205,7 +205,7 @@ const program = new Command()
   .option("--verbose", "show every finding with source context")
   .option("--json", "output a structured JSON report")
   .option("--json-compact", "with --json, emit compact JSON")
-  .option("--score", "output only the numeric score")
+  .option("--score", "output only the numeric score, or N/A if source parsing is incomplete")
   .option("--staged", "scan only staged files")
   .option("--package", "check existing component library runtime and declaration entry files")
   .addOption(new Option("--diff [base]", "scan files changed against a base ref").default(false))
@@ -281,7 +281,7 @@ program.action(async (directory: string, options: Record<string, unknown>) => {
       : "\nVerification after agent: full working-tree scan.\n");
     process.stdout.write(`${formatReport(report, { verbose: Boolean(options.verbose), showAgentPromptHint: false })}\n`);
   };
-  if (report.diagnostics.length > 0) {
+  if (report.diagnostics.length > 0 || report.parseErrors?.length) {
     const prompt = buildAgentPrompt(report);
     if (options.agent) {
       const command = typeof options.agent === "string" ? options.agent :
