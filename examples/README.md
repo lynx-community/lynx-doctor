@@ -22,7 +22,7 @@ node packages/lynx-doctor/dist/cli.js examples/threading-regressions --agent-pro
 node packages/lynx-doctor/dist/cli.js examples/event-mode-settings --verbose --blocking none
 ```
 
-Each example can also be installed and run independently:
+The three application examples can also be installed and run independently:
 
 ```bash
 cd examples/healthy-shop
@@ -31,3 +31,14 @@ pnpm dev
 ```
 
 The projects intentionally use pinned versions instead of workspace `catalog:` ranges so they remain runnable outside this repository.
+
+## Scanner regression fixtures
+
+[`parse-error-repro`](./parse-error-repro/README.md) reproduces `styles.test.ts:772:1: '}' expected.` with the published `lynx-doctor@0.1.1` and compares it with the local scanner. It generates an intentionally invalid file and does not require installing example dependencies.
+
+```bash
+cd examples/parse-error-repro
+npm run repro
+```
+
+After building the local CLI, run `npm run doctor:local` in the same directory to verify that scanning continues after the error. Both commands intentionally exit with code 1.

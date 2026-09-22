@@ -1,5 +1,5 @@
 {
   "ignore": {
-    "files": ["packages/lynx-doctor/test/**"]
+    "files": ["packages/lynx-doctor/test/**", "examples/parse-error-repro/**"]
   }
 }

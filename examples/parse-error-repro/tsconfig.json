@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "jsx": "preserve",
+    "jsxImportSource": "@lynx-js/react",
+    "isolatedModules": true
+  }
+}
